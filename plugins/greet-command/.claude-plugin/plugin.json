@@ -1,0 +1,5 @@
+{
+  "name": "greet-command",
+  "description": "A command to greet people",
+  "version": "1.0.0"
+}

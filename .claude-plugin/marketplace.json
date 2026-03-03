@@ -1,0 +1,22 @@
+{
+  "name": "olojiang-demo",
+  "owner": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  },
+  "metadata": {
+    "description": "Demo marketplace with sample skill and command plugins"
+  },
+  "plugins": [
+    {
+      "name": "hello-skill",
+      "source": "./plugins/hello-skill",
+      "description": "A simple skill that says hello"
+    },
+    {
+      "name": "greet-command",
+      "source": "./plugins/greet-command",
+      "description": "A command to greet people with custom messages"
+    }
+  ]
+}
