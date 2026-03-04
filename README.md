@@ -74,7 +74,7 @@ olojiang-demo/
 ### 方式一：通过 Git URL 添加
 
 ```bash
-claude marketplace add https://github.com/olojiang/claude-demo-marketplace.git
+claude plugin marketplace add https://github.com/olojiang/claude-demo-marketplace.git
 ```
 
 ### 方式二：手动克隆到本地
@@ -86,27 +86,53 @@ git clone https://github.com/olojiang/claude-demo-marketplace.git olojiang-demo
 
 添加后重启 Claude Code 即可生效。
 
-## 如何安装插件
-
-添加 Marketplace 后，使用以下命令浏览和安装插件：
+### Marketplace 管理命令
 
 ```bash
-# 列出可用的 marketplace
-claude marketplace list
+# 列出已添加的 marketplace
+claude plugin marketplace list
 
-# 浏览 marketplace 中的插件
-claude marketplace browse olojiang-demo
+# 更新 marketplace（拉取最新版本）
+claude plugin marketplace update olojiang-demo
 
-# 安装单个插件
-claude plugin install olojiang-demo/hello-skill
-claude plugin install olojiang-demo/greet-command
-claude plugin install olojiang-demo/code-explainer
-claude plugin install olojiang-demo/todo-reminder
-claude plugin install olojiang-demo/pinefield-memories
-claude plugin install olojiang-demo/pinefield-scheduler
+# 更新所有 marketplace
+claude plugin marketplace update
+
+# 移除 marketplace
+claude plugin marketplace remove olojiang-demo
+```
+
+## 如何安装插件
+
+添加 Marketplace 后，使用以下命令安装和管理插件：
+
+```bash
+# 安装插件（自动从所有 marketplace 中查找）
+claude plugin install hello-skill
+claude plugin install greet-command
+claude plugin install code-explainer
+claude plugin install todo-reminder
+claude plugin install pinefield-memories
+claude plugin install pinefield-scheduler
+
+# 指定从特定 marketplace 安装（plugin@marketplace 格式）
+claude plugin install hello-skill@olojiang-demo
 
 # 查看已安装的插件
 claude plugin list
+
+# 更新插件到最新版本（需重启生效）
+claude plugin update hello-skill
+
+# 禁用 / 启用插件
+claude plugin disable hello-skill
+claude plugin enable hello-skill
+
+# 卸载插件
+claude plugin uninstall hello-skill
+
+# 验证插件或 marketplace 结构是否正确
+claude plugin validate ./plugins/my-plugin
 ```
 
 ## 如何使用
@@ -431,8 +457,8 @@ Hook 脚本通过 stdin 接收 JSON 输入，通过 stderr 输出警告，退出
 
 ```bash
 # 卸载单个插件
-claude plugin uninstall olojiang-demo/hello-skill
+claude plugin uninstall hello-skill
 
 # 移除整个 marketplace
-claude marketplace remove olojiang-demo
+claude plugin marketplace remove olojiang-demo
 ```
