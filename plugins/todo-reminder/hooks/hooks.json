@@ -1,0 +1,17 @@
+{
+  "description": "Reminds about TODO/FIXME comments when writing or editing files",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/check_todos.py",
+            "timeout": 10
+          }
+        ],
+        "matcher": "Edit|Write|MultiEdit"
+      }
+    ]
+  }
+}

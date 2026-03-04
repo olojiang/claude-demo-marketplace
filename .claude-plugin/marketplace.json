@@ -1,11 +1,9 @@
 {
   "name": "olojiang-demo",
+  "description": "Demo marketplace showcasing Claude Code plugin types: skills, commands, agents, and hooks",
   "owner": {
     "name": "Olojiang",
     "email": "olojiang@example.com"
-  },
-  "metadata": {
-    "description": "Demo marketplace with sample skill and command plugins"
   },
   "plugins": [
     {
@@ -17,6 +15,16 @@
       "name": "greet-command",
       "source": "./plugins/greet-command",
       "description": "A command to greet people with custom messages"
+    },
+    {
+      "name": "code-explainer",
+      "source": "./plugins/code-explainer",
+      "description": "A demo sub-agent that explains code in a beginner-friendly way, with a /explain command"
+    },
+    {
+      "name": "todo-reminder",
+      "source": "./plugins/todo-reminder",
+      "description": "A demo hook that reminds about TODO/FIXME comments when writing or editing files"
     }
   ]
 }

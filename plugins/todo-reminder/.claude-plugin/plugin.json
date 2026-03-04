@@ -1,0 +1,8 @@
+{
+  "name": "todo-reminder",
+  "description": "A demo hook plugin that reminds about TODO/FIXME comments when editing files",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "code-explainer",
+  "description": "A demo plugin with a sub-agent that explains code and a command to trigger it",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}
