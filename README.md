@@ -158,125 +158,59 @@ bash ~/.claude/plugins/cache/olojiang-demo/pinefield-scheduler/*/setup.sh
 
 ---
 
-## 手动测试指南
+## 安装验证
 
-由于 Marketplace 插件系统不支持自动化测试（详见下方说明），以下是各插件的手动测试方法。
+安装插件后，可以用以下方式快速确认插件是否正常工作。
 
-### 测试 hello-skill
+| 插件 | 验证方式 | 预期结果 |
+|------|----------|----------|
+| `hello-skill` | 在 Claude Code 中说「你好，打个招呼」 | Claude 以友好方式打招呼 |
+| `greet-command` | 输入 `/greet World` | 输出包含 "World" 的问候 |
+| `code-explainer` | 输入 `/explain package.json` | 生成 sub-agent 对文件做结构化解释 |
+| `todo-reminder` | 让 Claude 写一个包含 `// TODO` 的文件 | 写入时控制台显示 TODO 提醒 |
+| `pinefield-memories` | 重启 Claude Code，开始新对话 | 如果有历史记忆，SessionStart hook 会自动注入 |
+| `pinefield-scheduler` | 在 Claude Code 中说「列出所有定时任务」 | Claude 调用 `list_tasks` MCP 工具并返回结果 |
 
-安装插件后，在 Claude Code 中对话：
-
-```
-你好，请打个招呼
-```
-
-**预期结果**: Claude 应以友好的方式打招呼（skill 被自动调用）。
-
-### 测试 greet-command
-
-在 Claude Code 中输入：
-
-```
-/greet World
-```
-
-**预期结果**: Claude 输出包含 "World" 的问候消息。
-
-### 测试 code-explainer
-
-在 Claude Code 中输入：
-
-```
-/explain package.json
-```
-
-**预期结果**: Claude 生成 code-explainer sub-agent，对文件进行结构化解释。
-
-### 测试 todo-reminder
-
-在 Claude Code 中执行会写入包含 TODO 的代码的操作：
-
-```
-帮我创建一个 /tmp/test-todo.js 文件，内容包含一行 // TODO: implement this
-```
-
-**预期结果**: 写入文件时控制台会显示 TODO 提醒警告。
-
-### 测试 pinefield-memories
-
-**前置条件**: 需要先构建源项目。
-
-```bash
-# 1. 构建（如果还没构建）
-cd /Users/hunter/Workspace/pinefield_memories
-pnpm install && pnpm build
-
-# 2. 测试 CLI 命令
-node dist/cli.js save --content "这是一条测试记忆" --tags "test"
-node dist/cli.js list
-node dist/cli.js search --query "测试"
-
-# 3. 测试 hooks（需要在 Claude Code 内）
-#    - 重启 Claude Code，观察 SessionStart hook 是否注入了记忆
-#    - 提问包含 "测试" 的问题，观察是否搜索到相关记忆
-#    - 进行一次有价值的对话，观察 Stop hook 是否自动保存记忆
-
-# 4. 查看 hook 日志
-cat ~/.pinefield/memories/hook.log
-
-# 5. 运行源项目的单元测试
-cd /Users/hunter/Workspace/pinefield_memories
-pnpm test
-```
-
-### 测试 pinefield-scheduler
-
-**前置条件**: 需要先构建源项目并安装 pm2。
-
-```bash
-# 1. 构建（如果还没构建）
-cd /Users/hunter/Workspace/pinefield_scheduler
-pnpm install && pnpm build
-
-# 2. 启动 daemon
-pm2 start dist/daemon.js --name pinefield-scheduler
-
-# 3. 测试 MCP 工具（在 Claude Code 内）
-#    告诉 Claude: "创建一个每分钟执行的 shell 任务，命令是 echo hello"
-#    Claude 会调用 create_task MCP 工具
-
-# 4. 验证任务
-pm2 logs pinefield-scheduler        # 查看 daemon 日志
-cat ~/.pinefield/scheduler/tasks.json  # 查看任务列表
-
-# 5. 清理测试任务（在 Claude Code 内）
-#    告诉 Claude: "列出所有任务" → "删除刚才创建的任务"
-
-# 6. 运行源项目的单元测试
-cd /Users/hunter/Workspace/pinefield_scheduler
-pnpm test
-
-# 7. 停止 daemon
-pm2 stop pinefield-scheduler
-```
+> **注意**: `pinefield-memories` 和 `pinefield-scheduler` 安装后需要先运行 `setup.sh` 完成构建（见上方「如何使用」），否则底层 CLI / MCP Server 不可用。
 
 ---
 
-## 为什么不能自动化测试
+## 关于自动化测试
 
-Claude Code 的 Marketplace 插件系统**不具备自动化测试能力**，原因如下：
+Claude Code 的 Marketplace 插件系统**不支持自动化测试**，原因如下：
 
-1. **插件是指令文件，不是可执行代码** — Skill (`SKILL.md`)、Command (`.md`)、Agent (`.md`) 本质上是 Markdown 文本，Claude 读取后作为行为指令。它们没有可执行的测试入口，不像 npm 包有 `test` 脚本。
+1. **插件是指令文件，不是可执行代码** — Skill / Command / Agent 本质上是 Markdown 文本，Claude 读取后作为行为指令，没有可执行的测试入口。
+2. **Hooks 是事件驱动的** — 只在 Claude Code 实际执行 Edit/Write/Stop 等操作时才触发，无法脱离运行环境独立测试。
+3. **MCP Server 需要运行时基础设施** — pinefield-scheduler 需要 PM2 + Node.js，不是安装就能自动验证的。
+4. **插件系统无内置 test runner** — 与 npm/vitest 不同，Marketplace 安装流程只负责复制文件和注册插件，没有 `test` 生命周期钩子。
+5. **Skill 触发依赖 AI 判断** — 无法确定性地触发和验证。
 
-2. **Hooks 是事件驱动的** — Hook 脚本只在 Claude Code 实际执行 Edit/Write/Stop 等操作时才触发，无法脱离 Claude Code 运行环境独立测试集成效果。
+> `pinefield-memories` 和 `pinefield-scheduler` 的底层代码各自有完整的 vitest 单元测试，但那测试的是代码逻辑本身，不属于 Marketplace 插件的范畴。如需运行，请参考下方开发者指南。
 
-3. **MCP Server 需要运行时基础设施** — pinefield-scheduler 的 daemon 和 MCP server 需要 PM2、Node.js 运行环境，不是插件安装就能自动测试的。
+---
 
-4. **插件系统无内置 test runner** — 与 npm/vitest 不同，Marketplace 的安装流程只负责复制文件和注册插件，没有 `test` 生命周期钩子。
+## 开发者指南
 
-5. **Skill 触发依赖 AI 判断** — Skill 是否被调用取决于 Claude 的上下文理解，无法确定性地触发和验证。
+> 以下内容面向本 Marketplace 的维护者/贡献者，普通用户无需阅读。
 
-**替代方案**: 两个 pinefield 项目各自有完整的单元测试（vitest），可以在源项目目录下运行 `pnpm test` 来验证底层代码逻辑。但这测试的是代码本身，不是 Marketplace 插件集成。
+### 运行 pinefield-memories 单元测试
+
+```bash
+cd /Users/hunter/Workspace/pinefield_memories
+pnpm install && pnpm test
+```
+
+调试 hook 日志：`cat ~/.pinefield/memories/hook.log`
+
+### 运行 pinefield-scheduler 单元测试
+
+```bash
+cd /Users/hunter/Workspace/pinefield_scheduler
+pnpm install && pnpm test
+```
+
+Daemon 日志：`pm2 logs pinefield-scheduler`
+任务存储：`cat ~/.pinefield/scheduler/tasks.json`
 
 ---
 
