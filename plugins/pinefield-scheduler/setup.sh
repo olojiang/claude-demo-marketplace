@@ -1,17 +1,12 @@
 #!/bin/bash
 # Setup script for pinefield-scheduler plugin
-# Installs runtime dependencies and starts the PM2 daemon.
-# The server and daemon are pre-built — no compilation needed.
+# All dependencies are bundled — no npm install needed.
 
 set -e
 
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "Setting up pinefield-scheduler..."
-
-echo "Installing runtime dependencies..."
-cd "$PLUGIN_DIR"
-npm install --production 2>&1
 
 echo "Creating scheduler data directory..."
 mkdir -p "${HOME}/.pinefield/scheduler"

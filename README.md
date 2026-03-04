@@ -304,7 +304,7 @@ rm ~/.pinefield/memories/*.json
 bash ~/.claude/plugins/cache/olojiang-demo/pinefield-scheduler/*/setup.sh
 ```
 
-Daemon 和 MCP Server 已预编译打包在插件内。setup 会安装运行时依赖（`npm install`）并通过 PM2 启动 daemon，**无需从源码编译**。
+Daemon 和 MCP Server 已全量打包（含所有依赖），**无需 npm install**。setup 只创建数据目录并通过 PM2 启动 daemon。
 
 > 前置条件：需要全局安装 PM2（`npm install -g pm2`）。
 
