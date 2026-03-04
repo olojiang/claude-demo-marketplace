@@ -129,32 +129,167 @@ Agent 由 Claude 自动判断是否需要生成子代理来处理任务。安装
 Hook 在特定事件发生时**自动执行**。安装 `todo-reminder` 后，每当 Claude 写入或编辑文件时，会自动检查是否包含 TODO/FIXME 注释并给出提醒。
 
 ### 使用 pinefield-memories
-安装后需要先运行 setup 构建项目：
+
+#### 第 1 步：安装后运行 setup
 
 ```bash
-# 找到插件安装路径并运行 setup
 bash ~/.claude/plugins/cache/olojiang-demo/pinefield-memories/*/setup.sh
 ```
 
-安装后 hooks 会自动生效：
-- **SessionStart**: 会话开始时自动注入最近的记忆
-- **UserPromptSubmit**: 用户提问时自动搜索相关记忆
-- **Stop**: Claude 回答后 AI 判断是否有值得记忆的内容
+setup 会自动安装依赖、构建 CLI、创建存储目录。看到 `Setup complete!` 即成功。
 
-### 使用 pinefield-scheduler
-安装后需要先运行 setup 构建项目并启动 daemon：
+#### 第 2 步：验证 CLI 可用
+
+在终端中直接运行以下命令，确认 CLI 正常工作：
 
 ```bash
-# 找到插件安装路径并运行 setup
+# 保存一条测试记忆
+node /Users/hunter/Workspace/pinefield_memories/dist/cli.js save --content "我喜欢用 dark mode" --tags "preference,test"
+
+# 查看记忆列表（应能看到刚才保存的）
+node /Users/hunter/Workspace/pinefield_memories/dist/cli.js list
+
+# 搜索记忆
+node /Users/hunter/Workspace/pinefield_memories/dist/cli.js search --query "dark mode"
+```
+
+#### 第 3 步：验证 Hooks 自动生效
+
+安装后有 3 类 hook 会在 Claude Code 中自动运行：
+
+**测试 SessionStart hook（会话开始时注入记忆）：**
+1. 确保第 2 步已保存至少一条记忆
+2. 完全退出 Claude Code，重新启动
+3. 开始新对话，输入任意内容
+4. **预期**：Claude 的回答中会参考注入的历史记忆上下文
+
+**测试 UserPromptSubmit hook（提问时搜索相关记忆）：**
+1. 在 Claude Code 中输入一个与已保存记忆相关的问题，例如：
+   ```
+   我之前设置过什么主题偏好？
+   ```
+2. **预期**：hook 会搜索到包含 "dark mode" 的记忆并注入上下文，Claude 回答时会提及你的偏好
+
+**测试 Stop hook（AI 自动记忆提炼）：**
+1. 在 Claude Code 中进行一次有「记忆价值」的对话，例如：
+   ```
+   我们项目决定使用 PostgreSQL 而不是 MySQL，因为需要 JSONB 支持
+   ```
+2. 等 Claude 回答完毕
+3. 检查是否自动保存了新记忆：
+   ```bash
+   node /Users/hunter/Workspace/pinefield_memories/dist/cli.js list
+   ```
+4. **预期**：列表中出现一条自动保存的记忆，标签包含 `auto-memory`
+5. 也可以查看 hook 日志确认：
+   ```bash
+   cat ~/.pinefield/memories/hook.log
+   ```
+
+#### 第 4 步（可选）：清理测试数据
+
+```bash
+# 查看存储目录
+ls ~/.pinefield/memories/
+
+# 如需清理所有记忆（谨慎操作）
+rm ~/.pinefield/memories/*.json
+```
+
+---
+
+### 使用 pinefield-scheduler
+
+#### 第 1 步：安装后运行 setup
+
+```bash
 bash ~/.claude/plugins/cache/olojiang-demo/pinefield-scheduler/*/setup.sh
 ```
 
-安装后可通过 MCP 工具管理定时任务：
-- `create_task`: 创建定时任务（支持 cron 表达式）
-- `list_tasks`: 列出所有任务
-- `delete_task`: 删除任务
-- `trigger_heartbeat`: 手动触发心跳检查
-- `push_event`: 推送事件到事件队列
+setup 会自动安装依赖、构建项目、通过 PM2 启动 daemon。看到 `Setup complete!` 即成功。
+
+> 前置条件：需要全局安装 PM2（`npm install -g pm2`）。
+
+#### 第 2 步：验证 Daemon 运行状态
+
+```bash
+pm2 status pinefield-scheduler
+```
+
+**预期**：状态显示 `online`。
+
+#### 第 3 步：在 Claude Code 中测试 MCP 工具
+
+**测试 create_task（创建任务）：**
+
+在 Claude Code 中输入：
+```
+帮我创建一个定时任务，每分钟执行一次，类型是 shell，命令是 echo "hello from scheduler" >> /tmp/scheduler-test.log
+```
+
+**预期**：Claude 调用 `create_task` MCP 工具，返回任务创建成功及任务 ID。
+
+**测试 list_tasks（列出任务）：**
+
+```
+列出当前所有定时任务
+```
+
+**预期**：Claude 调用 `list_tasks`，返回一个任务列表，包含刚才创建的任务及其 cron 表达式、下次执行时间。
+
+**验证任务确实在执行：**
+
+等待 1-2 分钟后，在终端中检查：
+```bash
+cat /tmp/scheduler-test.log
+```
+
+**预期**：文件中有一行或多行 `hello from scheduler`。
+
+**测试 delete_task（删除任务）：**
+
+```
+删除刚才创建的定时任务
+```
+
+**预期**：Claude 调用 `delete_task`，返回删除成功。再次执行 `列出所有任务` 确认列表为空。
+
+**测试 push_event + trigger_heartbeat（事件与心跳）：**
+
+```
+推送一个系统事件，内容是 "磁盘空间不足警告"，然后触发一次心跳检查
+```
+
+**预期**：Claude 依次调用 `push_event` 和 `trigger_heartbeat`，心跳会消费该事件并返回处理结果。
+
+#### 第 4 步：查看日志和数据
+
+```bash
+# 查看 daemon 实时日志
+pm2 logs pinefield-scheduler --lines 20
+
+# 查看任务定义
+cat ~/.pinefield/scheduler/tasks.json
+
+# 查看执行历史
+cat ~/.pinefield/scheduler/tasks_execute_history.json
+
+# 查看错误记录
+cat ~/.pinefield/scheduler/task_execute_error.json
+```
+
+#### 第 5 步：清理测试环境
+
+```bash
+# 停止 daemon
+pm2 stop pinefield-scheduler
+
+# 清理测试日志
+rm -f /tmp/scheduler-test.log
+
+# 如需彻底清理任务数据（谨慎操作）
+rm ~/.pinefield/scheduler/tasks.json
+```
 
 ---
 
@@ -168,8 +303,8 @@ bash ~/.claude/plugins/cache/olojiang-demo/pinefield-scheduler/*/setup.sh
 | `greet-command` | 输入 `/greet World` | 输出包含 "World" 的问候 |
 | `code-explainer` | 输入 `/explain package.json` | 生成 sub-agent 对文件做结构化解释 |
 | `todo-reminder` | 让 Claude 写一个包含 `// TODO` 的文件 | 写入时控制台显示 TODO 提醒 |
-| `pinefield-memories` | 重启 Claude Code，开始新对话 | 如果有历史记忆，SessionStart hook 会自动注入 |
-| `pinefield-scheduler` | 在 Claude Code 中说「列出所有定时任务」 | Claude 调用 `list_tasks` MCP 工具并返回结果 |
+| `pinefield-memories` | 先保存一条记忆，重启 Claude Code 后提问相关内容 | SessionStart 注入记忆 + 搜索到匹配（详见上方完整流程） |
+| `pinefield-scheduler` | 告诉 Claude「创建一个每分钟执行的 shell 任务」 | `create_task` 成功，1 分钟后 `/tmp` 下出现日志（详见上方完整流程） |
 
 > **注意**: `pinefield-memories` 和 `pinefield-scheduler` 安装后需要先运行 `setup.sh` 完成构建（见上方「如何使用」），否则底层 CLI / MCP Server 不可用。
 
