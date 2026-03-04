@@ -1,6 +1,45 @@
 ---
 name: scheduler-skill
-description: Create and manage scheduled tasks for Claude Code. Use this skill when the user wants to set up cron jobs, periodic tasks, heartbeat checks, or any automated scheduling via MCP tools (create_task, list_tasks, delete_task, trigger_heartbeat, push_event).
+description: |
+  Create and manage scheduled tasks for Claude Code. Use this skill when the user wants to set up cron jobs, periodic tasks, heartbeat checks, or any automated scheduling via MCP tools (create_task, list_tasks, delete_task, trigger_heartbeat, push_event).
+
+  When creating tasks, infer the best task type from the user's intent:
+  - If the task involves system commands, file operations, or CLI tools → type: "shell"
+  - If the task involves JavaScript/Node.js logic → type: "node"  
+  - If the task involves Python scripting → type: "python"
+  - If the task involves checking a URL or API endpoint → type: "http"
+  - If the task requires AI reasoning, summarization, natural language generation, or creative content → type: "claude_code"
+  - If the task is about system health monitoring with event consumption → type: "heartbeat"
+
+  <example>
+  user: "每小时检查一下磁盘使用率，写入日志"
+  assistant: Creates task with type "shell", command "df -h / >> ~/.pinefield/scheduler/disk-usage.log"
+  </example>
+
+  <example>
+  user: "每天早上 9 点给我写一句今日激励语，保存到桌面"
+  assistant: Creates task with type "claude_code", command includes prompt for generating motivational quote and saving to file
+  </example>
+
+  <example>
+  user: "每 10 分钟用 Node 检查一下 package.json 里有没有过期的依赖"
+  assistant: Creates task with type "node", command is JS code that reads package.json
+  </example>
+
+  <example>
+  user: "每 5 分钟 ping 一下我们的生产环境 API"
+  assistant: Creates task with type "http", url set to the API endpoint
+  </example>
+
+  <example>
+  user: "每周一早上帮我总结上周的 git 提交记录"
+  assistant: Creates task with type "claude_code", because summarization requires AI reasoning
+  </example>
+
+  <example>
+  user: "用 Python 每小时统计一下某个目录下的文件数量"
+  assistant: Creates task with type "python", command is Python code
+  </example>
 ---
 
 # Pinefield Scheduler Skill

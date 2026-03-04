@@ -316,35 +316,83 @@ pm2 status pinefield-scheduler
 
 **预期**：状态显示 `online`。
 
-#### 第 3 步：在 Claude Code 中测试 MCP 工具
+#### 第 3 步：自然语言创建任务
 
-**测试 create_task（创建任务）：**
+以下提示词**不需要指定任务类型**，Claude 会根据语义自动推断使用 `shell`、`node`、`python`、`claude_code` 或 `http` 类型。
 
-在 Claude Code 中输入：
-
-```
-帮我创建一个定时任务，每分钟执行一次，类型是 shell，命令是 echo "hello from scheduler" >> /tmp/scheduler-test.log
-```
-
-**预期**：Claude 调用 `create_task` MCP 工具，返回任务创建成功及任务 ID。
-
-**测试 list_tasks（列出任务）：**
+**场景 A：Shell 类型（系统命令）**
 
 ```
-列出当前所有定时任务
+❯ 每分钟记录一下磁盘使用率，追加写入 /tmp/disk-monitor.log
 ```
 
-**预期**：Claude 调用 `list_tasks`，返回一个任务列表，包含刚才创建的任务及其 cron 表达式、下次执行时间。
+预期：Claude 推断为 `shell` 类型，命令类似 `df -h / >> /tmp/disk-monitor.log`
 
-**验证任务确实在执行：**
-
-等待 1-2 分钟后，在终端中检查：
+验证：
 
 ```bash
-cat /tmp/scheduler-test.log
+# 等 1-2 分钟后
+cat /tmp/disk-monitor.log
 ```
 
-**预期**：文件中有一行或多行 `hello from scheduler`。
+**场景 B：Claude 类型（需要 AI 推理）**
+
+```
+❯ 每 5 分钟帮我生成一句中文激励语，追加写入 ~/Desktop/daily-quote.txt
+```
+
+预期：Claude 推断为 `claude_code` 类型，因为"生成激励语"需要 AI 创作能力
+
+验证：
+
+```bash
+# 等 5 分钟后
+cat ~/Desktop/daily-quote.txt
+```
+
+**场景 C：Node 类型（JS 逻辑）**
+
+```
+❯ 每 10 分钟用 Node 检查一下 3000 端口是否被占用，结果写入 /tmp/port-check.log
+```
+
+预期：Claude 推断为 `node` 类型，生成 JS 代码检查端口
+
+**场景 D：Python 类型（Python 脚本）**
+
+```
+❯ 用 Python 每小时统计一下 ~/Downloads 目录的文件数量，写入 /tmp/file-count.log
+```
+
+预期：Claude 推断为 `python` 类型，生成 Python 代码
+
+**场景 E：HTTP 类型（网络请求）**
+
+```
+❯ 每 5 分钟 ping 一下 https://httpbin.org/get 确认网络可达
+```
+
+预期：Claude 推断为 `http` 类型，设置 url 和 method
+
+**查看所有创建的任务：**
+
+```
+❯ 列出当前所有定时任务
+```
+
+预期：Claude 调用 `list_tasks`，每个任务的 `type` 字段应该与上面预期的类型对应。
+
+**验证任务执行结果：**
+
+```bash
+# 查看最近的执行记录
+cat ~/.pinefield/scheduler/tasks_execute_history.json | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for r in data[-5:]:
+    print(f\"[{r.get('status')}] {r.get('startTime','')[:19]}  stdout: {(r.get('stdout','') or '')[:80]}\")
+"
+```
 
 **测试 delete_task（删除任务）：**
 
