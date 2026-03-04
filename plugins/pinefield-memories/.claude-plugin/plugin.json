@@ -1,0 +1,8 @@
+{
+  "name": "pinefield-memories",
+  "description": "Long-term memory system for Claude Code with automatic recall, memorization, and session archiving via hooks",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

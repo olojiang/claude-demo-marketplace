@@ -1,6 +1,6 @@
 # Claude Code Demo Marketplace
 
-一个完整的 Claude Code 插件 Marketplace 示例，涵盖四种插件类型：**Skill**、**Command**、**Agent (Sub-agent)**、**Hook**。
+一个完整的 Claude Code 插件 Marketplace 示例，涵盖所有插件类型：**Skill**、**Command**、**Agent (Sub-agent)**、**Hook**、**MCP Server**。
 
 ## 包含的插件
 
@@ -10,6 +10,8 @@
 | `greet-command` | Command | `/greet` 命令，用户主动触发打招呼 |
 | `code-explainer` | Agent + Command | 代码解释 sub-agent + `/explain` 命令 |
 | `todo-reminder` | Hook | 编辑文件时自动检查 TODO/FIXME 注释并提醒 |
+| `pinefield-memories` | Skill + Hooks | 长期记忆系统：自动回忆、AI 记忆提炼、会话归档 |
+| `pinefield-scheduler` | Skill + MCP | 定时任务调度器：通过 MCP 工具创建/管理 cron 任务 |
 
 ## 目录结构
 
@@ -22,31 +24,45 @@ olojiang-demo/
 └── plugins/
     ├── hello-skill/              # Skill 示例
     │   ├── .claude-plugin/
-    │   │   └── plugin.json       # 插件元数据
-    │   └── skills/
-    │       └── hello/
-    │           └── SKILL.md      # Skill 定义文件
+    │   │   └── plugin.json
+    │   └── skills/hello/SKILL.md
     │
     ├── greet-command/            # Command 示例
     │   ├── .claude-plugin/
     │   │   └── plugin.json
-    │   └── commands/
-    │       └── greet.md          # 命令定义文件
+    │   └── commands/greet.md
     │
     ├── code-explainer/           # Agent 示例
     │   ├── .claude-plugin/
     │   │   └── plugin.json
-    │   ├── agents/
-    │   │   └── code-explainer.md # Sub-agent 定义
-    │   └── commands/
-    │       └── explain.md        # 配套的 /explain 命令
+    │   ├── agents/code-explainer.md
+    │   └── commands/explain.md
     │
-    └── todo-reminder/            # Hook 示例
+    ├── todo-reminder/            # Hook 示例
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   └── hooks/
+    │       ├── hooks.json
+    │       └── check_todos.py
+    │
+    ├── pinefield-memories/       # Skill + Hooks（需要构建）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   ├── skills/memory-skill/SKILL.md
+    │   ├── hooks/
+    │   │   ├── hooks.json
+    │   │   ├── session-start-recall.sh
+    │   │   ├── prompt-recall.sh
+    │   │   ├── stop-memorize.sh
+    │   │   └── session-end-archive.sh
+    │   └── setup.sh
+    │
+    └── pinefield-scheduler/      # Skill + MCP（需要构建 + PM2）
         ├── .claude-plugin/
         │   └── plugin.json
-        └── hooks/
-            ├── hooks.json        # Hook 事件注册
-            └── check_todos.py    # Hook 处理脚本
+        ├── .mcp.json
+        ├── skills/scheduler-skill/SKILL.md
+        └── setup.sh
 ```
 
 ## 关键规则
@@ -86,6 +102,8 @@ claude plugin install olojiang-demo/hello-skill
 claude plugin install olojiang-demo/greet-command
 claude plugin install olojiang-demo/code-explainer
 claude plugin install olojiang-demo/todo-reminder
+claude plugin install olojiang-demo/pinefield-memories
+claude plugin install olojiang-demo/pinefield-scheduler
 
 # 查看已安装的插件
 claude plugin list
@@ -109,6 +127,158 @@ Agent 由 Claude 自动判断是否需要生成子代理来处理任务。安装
 
 ### 使用 Hook
 Hook 在特定事件发生时**自动执行**。安装 `todo-reminder` 后，每当 Claude 写入或编辑文件时，会自动检查是否包含 TODO/FIXME 注释并给出提醒。
+
+### 使用 pinefield-memories
+安装后需要先运行 setup 构建项目：
+
+```bash
+# 找到插件安装路径并运行 setup
+bash ~/.claude/plugins/cache/olojiang-demo/pinefield-memories/*/setup.sh
+```
+
+安装后 hooks 会自动生效：
+- **SessionStart**: 会话开始时自动注入最近的记忆
+- **UserPromptSubmit**: 用户提问时自动搜索相关记忆
+- **Stop**: Claude 回答后 AI 判断是否有值得记忆的内容
+
+### 使用 pinefield-scheduler
+安装后需要先运行 setup 构建项目并启动 daemon：
+
+```bash
+# 找到插件安装路径并运行 setup
+bash ~/.claude/plugins/cache/olojiang-demo/pinefield-scheduler/*/setup.sh
+```
+
+安装后可通过 MCP 工具管理定时任务：
+- `create_task`: 创建定时任务（支持 cron 表达式）
+- `list_tasks`: 列出所有任务
+- `delete_task`: 删除任务
+- `trigger_heartbeat`: 手动触发心跳检查
+- `push_event`: 推送事件到事件队列
+
+---
+
+## 手动测试指南
+
+由于 Marketplace 插件系统不支持自动化测试（详见下方说明），以下是各插件的手动测试方法。
+
+### 测试 hello-skill
+
+安装插件后，在 Claude Code 中对话：
+
+```
+你好，请打个招呼
+```
+
+**预期结果**: Claude 应以友好的方式打招呼（skill 被自动调用）。
+
+### 测试 greet-command
+
+在 Claude Code 中输入：
+
+```
+/greet World
+```
+
+**预期结果**: Claude 输出包含 "World" 的问候消息。
+
+### 测试 code-explainer
+
+在 Claude Code 中输入：
+
+```
+/explain package.json
+```
+
+**预期结果**: Claude 生成 code-explainer sub-agent，对文件进行结构化解释。
+
+### 测试 todo-reminder
+
+在 Claude Code 中执行会写入包含 TODO 的代码的操作：
+
+```
+帮我创建一个 /tmp/test-todo.js 文件，内容包含一行 // TODO: implement this
+```
+
+**预期结果**: 写入文件时控制台会显示 TODO 提醒警告。
+
+### 测试 pinefield-memories
+
+**前置条件**: 需要先构建源项目。
+
+```bash
+# 1. 构建（如果还没构建）
+cd /Users/hunter/Workspace/pinefield_memories
+pnpm install && pnpm build
+
+# 2. 测试 CLI 命令
+node dist/cli.js save --content "这是一条测试记忆" --tags "test"
+node dist/cli.js list
+node dist/cli.js search --query "测试"
+
+# 3. 测试 hooks（需要在 Claude Code 内）
+#    - 重启 Claude Code，观察 SessionStart hook 是否注入了记忆
+#    - 提问包含 "测试" 的问题，观察是否搜索到相关记忆
+#    - 进行一次有价值的对话，观察 Stop hook 是否自动保存记忆
+
+# 4. 查看 hook 日志
+cat ~/.pinefield/memories/hook.log
+
+# 5. 运行源项目的单元测试
+cd /Users/hunter/Workspace/pinefield_memories
+pnpm test
+```
+
+### 测试 pinefield-scheduler
+
+**前置条件**: 需要先构建源项目并安装 pm2。
+
+```bash
+# 1. 构建（如果还没构建）
+cd /Users/hunter/Workspace/pinefield_scheduler
+pnpm install && pnpm build
+
+# 2. 启动 daemon
+pm2 start dist/daemon.js --name pinefield-scheduler
+
+# 3. 测试 MCP 工具（在 Claude Code 内）
+#    告诉 Claude: "创建一个每分钟执行的 shell 任务，命令是 echo hello"
+#    Claude 会调用 create_task MCP 工具
+
+# 4. 验证任务
+pm2 logs pinefield-scheduler        # 查看 daemon 日志
+cat ~/.pinefield/scheduler/tasks.json  # 查看任务列表
+
+# 5. 清理测试任务（在 Claude Code 内）
+#    告诉 Claude: "列出所有任务" → "删除刚才创建的任务"
+
+# 6. 运行源项目的单元测试
+cd /Users/hunter/Workspace/pinefield_scheduler
+pnpm test
+
+# 7. 停止 daemon
+pm2 stop pinefield-scheduler
+```
+
+---
+
+## 为什么不能自动化测试
+
+Claude Code 的 Marketplace 插件系统**不具备自动化测试能力**，原因如下：
+
+1. **插件是指令文件，不是可执行代码** — Skill (`SKILL.md`)、Command (`.md`)、Agent (`.md`) 本质上是 Markdown 文本，Claude 读取后作为行为指令。它们没有可执行的测试入口，不像 npm 包有 `test` 脚本。
+
+2. **Hooks 是事件驱动的** — Hook 脚本只在 Claude Code 实际执行 Edit/Write/Stop 等操作时才触发，无法脱离 Claude Code 运行环境独立测试集成效果。
+
+3. **MCP Server 需要运行时基础设施** — pinefield-scheduler 的 daemon 和 MCP server 需要 PM2、Node.js 运行环境，不是插件安装就能自动测试的。
+
+4. **插件系统无内置 test runner** — 与 npm/vitest 不同，Marketplace 的安装流程只负责复制文件和注册插件，没有 `test` 生命周期钩子。
+
+5. **Skill 触发依赖 AI 判断** — Skill 是否被调用取决于 Claude 的上下文理解，无法确定性地触发和验证。
+
+**替代方案**: 两个 pinefield 项目各自有完整的单元测试（vitest），可以在源项目目录下运行 `pnpm test` 来验证底层代码逻辑。但这测试的是代码本身，不是 Marketplace 插件集成。
+
+---
 
 ## 如何创建自己的插件
 
@@ -141,6 +311,7 @@ mkdir -p plugins/my-plugin/.claude-plugin
 | `commands/` | Command | `<name>.md`（YAML frontmatter 可含 `description`、`argument-hint`、`allowed-tools`） |
 | `agents/` | Agent | `<name>.md`（YAML frontmatter 需含 `name`、`description`，可选 `model`、`color`、`tools`） |
 | `hooks/` | Hook | `hooks.json` + 处理脚本 |
+| `.mcp.json` | MCP Server | 根目录下的 MCP 配置文件 |
 
 ### 4. 注册到 marketplace.json
 

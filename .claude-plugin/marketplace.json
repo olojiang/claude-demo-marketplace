@@ -25,6 +25,16 @@
       "name": "todo-reminder",
       "source": "./plugins/todo-reminder",
       "description": "A demo hook that reminds about TODO/FIXME comments when writing or editing files"
+    },
+    {
+      "name": "pinefield-memories",
+      "source": "./plugins/pinefield-memories",
+      "description": "Long-term memory system with auto-recall hooks, AI-powered memorization, and session archiving"
+    },
+    {
+      "name": "pinefield-scheduler",
+      "source": "./plugins/pinefield-scheduler",
+      "description": "Cron-based task scheduler with MCP tools for creating, listing, and deleting scheduled tasks"
     }
   ]
 }

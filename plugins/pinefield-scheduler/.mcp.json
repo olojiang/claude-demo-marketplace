@@ -1,0 +1,9 @@
+{
+  "pinefield-scheduler": {
+    "type": "stdio",
+    "command": "node",
+    "args": [
+      "/Users/hunter/Workspace/pinefield_scheduler/dist/mcp-server.js"
+    ]
+  }
+}
