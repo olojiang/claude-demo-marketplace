@@ -1,5 +1,8 @@
 {
   "name": "hello-skill",
   "description": "A simple skill that says hello",
-  "version": "1.0.0"
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
 }
