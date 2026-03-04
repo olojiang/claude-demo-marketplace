@@ -354,13 +354,104 @@ cat /tmp/scheduler-test.log
 
 **预期**：Claude 调用 `delete_task`，返回删除成功。再次执行 `列出所有任务` 确认列表为空。
 
+**测试 create_task — claude_code 类型（AI 定时任务）：**
+
+`claude_code` 类型的任务会通过 `claude -p` 调用 Claude CLI 来执行 AI 推理。
+
+前置验证 — 先确认 `claude -p` 可用：
+
+```bash
+echo "回复 OK" | claude -p
+# 预期输出：OK
+```
+
+在 Claude Code 中输入：
+
+```
+帮我创建一个定时任务，每 5 分钟执行一次，类型是 claude_code，命令是 "检查当前时间并用一句话总结现在的时间段（凌晨/早上/上午/下午/晚上）"
+```
+
+**预期**：Claude 调用 `create_task`，`type` 为 `claude_code`，返回任务 ID。
+
+等待 5 分钟后验证执行结果：
+
+```bash
+# 查看执行历史，找到该任务的输出
+cat ~/.pinefield/scheduler/tasks_execute_history.json | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for r in data[-5:]:
+    print(f\"[{r.get('status')}] {r.get('startTime','')[:19]}  stdout: {(r.get('stdout','') or '')[:100]}\")
+"
+```
+
+**预期**：最近的条目中 status 为 `success`，stdout 包含 Claude 的时间描述。
+
 **测试 push_event + trigger_heartbeat（事件与心跳）：**
 
+心跳任务会消费 `system_events.json` 中的事件，通过 `claude -p` 分析后返回处理建议。
+
+完整流程分 3 步：
+
+**步骤 1 — 推送事件：**
+
+在 Claude Code 中输入：
+
 ```
-推送一个系统事件，内容是 "磁盘空间不足警告"，然后触发一次心跳检查
+推送一个系统事件，内容是 "磁盘空间不足警告"
 ```
 
-**预期**：Claude 依次调用 `push_event` 和 `trigger_heartbeat`，心跳会消费该事件并返回处理结果。
+**预期**：Claude 调用 `push_event` MCP 工具，返回事件 ID。
+
+验证事件已入队：
+
+```bash
+cat ~/.pinefield/scheduler/system_events.json
+# 预期：数组中有一条 disk_space_warning 事件
+```
+
+**步骤 2 — 触发心跳：**
+
+```
+触发一次心跳检查
+```
+
+**预期**：Claude 调用 `trigger_heartbeat`，返回 heartbeat 任务 ID。
+
+**步骤 3 — 验证心跳结果：**
+
+等待 10-30 秒（心跳需要调用 `claude -p` 处理事件，耗时较长），然后检查：
+
+```bash
+# 检查事件是否被消费（心跳执行后会清空事件队列）
+cat ~/.pinefield/scheduler/system_events.json
+# 预期：空数组 [] 表示事件已被消费
+
+# 检查心跳执行结果
+cat ~/.pinefield/scheduler/tasks_execute_history.json | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for r in data[-3:]:
+    print(f\"[{r.get('status')}] {r.get('startTime','')[:19]}\")
+    if r.get('stdout'):
+        print(f\"  输出: {r['stdout'][:200]}\")
+"
+# 预期：status 为 success，输出中包含对 "磁盘空间不足" 事件的分析
+
+# 也可以查看 daemon 日志
+pm2 logs pinefield-scheduler --lines 20 --nostream
+# 预期：看到 [Executor] Heartbeat Active Response 或 Heartbeat Silent
+```
+
+> **提示**：如果 heartbeat 没有可处理的事件且 `HEARTBEAT.md` 为空，会返回 `HEARTBEAT_OK`（静默跳过）。
+
+**测试 delete_task（清理测试任务）：**
+
+```
+删除所有定时任务
+```
+
+**预期**：Claude 依次删除 claude_code 任务和其他测试任务。
 
 #### 第 4 步：查看日志和数据
 
