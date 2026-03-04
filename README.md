@@ -162,21 +162,24 @@ Hook 在特定事件发生时**自动执行**。安装 `todo-reminder` 后，每
 bash ~/.claude/plugins/cache/olojiang-demo/pinefield-memories/*/setup.sh
 ```
 
-setup 会自动安装依赖、构建 CLI、创建存储目录。看到 `Setup complete!` 即成功。
+CLI 已预编译打包在插件内，**无需编译**。setup 只创建存储目录并设置脚本权限。
 
 #### 第 2 步：验证 CLI 可用
 
-在终端中直接运行以下命令，确认 CLI 正常工作：
+找到插件安装路径，运行测试命令：
 
 ```bash
+# 找到插件路径
+PLUGIN_DIR=$(ls -d ~/.claude/plugins/cache/olojiang-demo/pinefield-memories/*)
+
 # 保存一条测试记忆
-node /Users/hunter/Workspace/pinefield_memories/dist/cli.js save --content "我喜欢用 dark mode" --tags "preference,test"
+node "$PLUGIN_DIR/dist/cli.js" save --content "我喜欢用 dark mode" --tags "preference,test"
 
 # 查看记忆列表（应能看到刚才保存的）
-node /Users/hunter/Workspace/pinefield_memories/dist/cli.js list
+node "$PLUGIN_DIR/dist/cli.js" list
 
 # 搜索记忆
-node /Users/hunter/Workspace/pinefield_memories/dist/cli.js search --query "dark mode"
+node "$PLUGIN_DIR/dist/cli.js" search --query "dark mode"
 ```
 
 #### 第 3 步：验证 Hooks 自动生效
@@ -202,9 +205,10 @@ node /Users/hunter/Workspace/pinefield_memories/dist/cli.js search --query "dark
    我们项目决定使用 PostgreSQL 而不是 MySQL，因为需要 JSONB 支持
    ```
 2. 等 Claude 回答完毕
-3. 检查是否自动保存了新记忆：
+3. 检查是否自动保存了新记忆（在终端中）：
    ```bash
-   node /Users/hunter/Workspace/pinefield_memories/dist/cli.js list
+   PLUGIN_DIR=$(ls -d ~/.claude/plugins/cache/olojiang-demo/pinefield-memories/*)
+   node "$PLUGIN_DIR/dist/cli.js" list
    ```
 4. **预期**：列表中出现一条自动保存的记忆，标签包含 `auto-memory`
 5. 也可以查看 hook 日志确认：
@@ -232,7 +236,7 @@ rm ~/.pinefield/memories/*.json
 bash ~/.claude/plugins/cache/olojiang-demo/pinefield-scheduler/*/setup.sh
 ```
 
-setup 会自动安装依赖、构建项目、通过 PM2 启动 daemon。看到 `Setup complete!` 即成功。
+Daemon 和 MCP Server 已预编译打包在插件内。setup 会安装运行时依赖（`npm install`）并通过 PM2 启动 daemon，**无需从源码编译**。
 
 > 前置条件：需要全局安装 PM2（`npm install -g pm2`）。
 
@@ -354,24 +358,39 @@ Claude Code 的 Marketplace 插件系统**不支持自动化测试**，原因如
 
 > 以下内容面向本 Marketplace 的维护者/贡献者，普通用户无需阅读。
 
-### 运行 pinefield-memories 单元测试
+### 重新打包 pinefield 插件
+
+如果修改了 pinefield 源项目的代码，需要重新编译并更新插件中的编译产物：
 
 ```bash
-cd /Users/hunter/Workspace/pinefield_memories
+# pinefield-memories（自包含 bundle，无外部依赖）
+cd <pinefield_memories 源项目路径>
+pnpm install && pnpm build
+cp dist/cli.js <marketplace>/plugins/pinefield-memories/dist/
+
+# pinefield-scheduler（需要 node_modules 运行时依赖）
+cd <pinefield_scheduler 源项目路径>
+pnpm install && pnpm build
+cp dist/daemon.js dist/mcp-server.js <marketplace>/plugins/pinefield-scheduler/dist/
+```
+
+### 运行源项目单元测试
+
+```bash
+# pinefield-memories
+cd <pinefield_memories 源项目路径>
+pnpm install && pnpm test
+
+# pinefield-scheduler
+cd <pinefield_scheduler 源项目路径>
 pnpm install && pnpm test
 ```
 
-调试 hook 日志：`cat ~/.pinefield/memories/hook.log`
+### 调试日志
 
-### 运行 pinefield-scheduler 单元测试
-
-```bash
-cd /Users/hunter/Workspace/pinefield_scheduler
-pnpm install && pnpm test
-```
-
-Daemon 日志：`pm2 logs pinefield-scheduler`
-任务存储：`cat ~/.pinefield/scheduler/tasks.json`
+- Hook 日志：`cat ~/.pinefield/memories/hook.log`
+- Daemon 日志：`pm2 logs pinefield-scheduler`
+- 任务存储：`cat ~/.pinefield/scheduler/tasks.json`
 
 ---
 

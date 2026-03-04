@@ -1,7 +1,8 @@
 #!/bin/bash
 # [Stop Hook] Archive unsummarized session logs (runs async, non-blocking)
 
-MEM_CLI="/Users/hunter/Workspace/pinefield_memories/dist/cli.js"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+MEM_CLI="${SCRIPT_DIR}/dist/cli.js"
 LOG_FILE="${HOME}/.pinefield/memories/hook.log"
 
 mkdir -p "$(dirname "$LOG_FILE")"

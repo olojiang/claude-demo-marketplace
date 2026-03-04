@@ -1,7 +1,8 @@
 #!/bin/bash
 # [UserPromptSubmit Hook] Search related memories when user submits a prompt
 
-MEM_CLI="/Users/hunter/Workspace/pinefield_memories/dist/cli.js"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+MEM_CLI="${SCRIPT_DIR}/dist/cli.js"
 
 INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty')

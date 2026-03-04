@@ -1,7 +1,8 @@
 #!/bin/bash
 # [SessionStart Hook] Inject recent memories as context when session starts
 
-MEM_CLI="/Users/hunter/Workspace/pinefield_memories/dist/cli.js"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+MEM_CLI="${SCRIPT_DIR}/dist/cli.js"
 
 MEMORIES=$(node "$MEM_CLI" list 2>/dev/null)
 
