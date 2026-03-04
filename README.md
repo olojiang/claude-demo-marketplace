@@ -4,14 +4,14 @@
 
 ## 包含的插件
 
-| 插件 | 类型 | 说明 |
-|------|------|------|
-| `hello-skill` | Skill | 简单的打招呼 skill，Claude 会根据上下文自动调用 |
-| `greet-command` | Command | `/greet` 命令，用户主动触发打招呼 |
-| `code-explainer` | Agent + Command | 代码解释 sub-agent + `/explain` 命令 |
-| `todo-reminder` | Hook | 编辑文件时自动检查 TODO/FIXME 注释并提醒 |
-| `pinefield-memories` | Skill + Hooks | 长期记忆系统：自动回忆、AI 记忆提炼、会话归档 |
-| `pinefield-scheduler` | Skill + MCP | 定时任务调度器：通过 MCP 工具创建/管理 cron 任务 |
+| 插件                  | 类型            | 说明                                             |
+| --------------------- | --------------- | ------------------------------------------------ |
+| `hello-skill`         | Skill           | 简单的打招呼 skill，Claude 会根据上下文自动调用  |
+| `greet-command`       | Command         | `/greet` 命令，用户主动触发打招呼                |
+| `code-explainer`      | Agent + Command | 代码解释 sub-agent + `/explain` 命令             |
+| `todo-reminder`       | Hook            | 编辑文件时自动检查 TODO/FIXME 注释并提醒         |
+| `pinefield-memories`  | Skill + Hooks   | 长期记忆系统：自动回忆、AI 记忆提炼、会话归档    |
+| `pinefield-scheduler` | Skill + MCP     | 定时任务调度器：通过 MCP 工具创建/管理 cron 任务 |
 
 ## 目录结构
 
@@ -135,12 +135,20 @@ claude plugin uninstall hello-skill
 claude plugin validate ./plugins/my-plugin
 ```
 
+## 清理 cache
+
+```
+rm -rf ~/.claude/plugins/cache/olojiang-demo
+```
+
 ## 如何使用
 
 ### 使用 Skill
+
 Skill 由 Claude 根据上下文**自动调用**，无需手动触发。安装 `hello-skill` 后，当对话涉及打招呼场景时，Claude 会自动应用该 skill。
 
 ### 使用 Command
+
 在 Claude Code 中输入斜杠命令即可触发：
 
 ```
@@ -149,9 +157,11 @@ Skill 由 Claude 根据上下文**自动调用**，无需手动触发。安装 `
 ```
 
 ### 使用 Agent
+
 Agent 由 Claude 自动判断是否需要生成子代理来处理任务。安装 `code-explainer` 后，当需要深入解释代码时，Claude 会自动生成 `code-explainer` 子代理。
 
 ### 使用 Hook
+
 Hook 在特定事件发生时**自动执行**。安装 `todo-reminder` 后，每当 Claude 写入或编辑文件时，会自动检查是否包含 TODO/FIXME 注释并给出提醒。
 
 ### 使用 pinefield-memories
@@ -182,24 +192,82 @@ node "$PLUGIN_DIR/dist/cli.js" list
 node "$PLUGIN_DIR/dist/cli.js" search --query "dark mode"
 ```
 
-#### 第 3 步：验证 Hooks 自动生效
+#### 第 3 步：自然语言交互测试
 
-安装后有 3 类 hook 会在 Claude Code 中自动运行：
+安装完成后，可以在 Claude Code 中直接用自然语言操作记忆。以下是按顺序的测试用例：
 
-**测试 SessionStart hook（会话开始时注入记忆）：**
-1. 确保第 2 步已保存至少一条记忆
-2. 完全退出 Claude Code，重新启动
-3. 开始新对话，输入任意内容
-4. **预期**：Claude 的回答中会参考注入的历史记忆上下文
+**测试 A：存储记忆**
 
-**测试 UserPromptSubmit hook（提问时搜索相关记忆）：**
-1. 在 Claude Code 中输入一个与已保存记忆相关的问题，例如：
-   ```
-   我之前设置过什么主题偏好？
-   ```
-2. **预期**：hook 会搜索到包含 "dark mode" 的记忆并注入上下文，Claude 回答时会提及你的偏好
+```
+❯ 记住：我的项目用 TypeScript + React，数据库是 PostgreSQL
+```
 
-**测试 Stop hook（AI 自动记忆提炼）：**
+预期：Claude 调用 `save` 命令，返回 "Memory saved: \<id\>"
+
+**测试 B：再存一条**
+
+```
+❯ 帮我记一下，我们团队每周三下午 3 点开 standup 会议
+```
+
+预期：Claude 保存这条记忆，自动推断合适的 tags
+
+**测试 C：罗列所有记忆**
+
+```
+❯ 我之前存过哪些记忆？列出来看看
+```
+
+预期：Claude 调用 `list`，展示所有记忆条目（含 ID、时间、内容、标签）
+
+**测试 D：搜索记忆**
+
+```
+❯ 搜索一下和数据库相关的记忆
+```
+
+预期：Claude 调用 `search --query "数据库"`，返回包含 PostgreSQL 的那条
+
+**测试 E：编辑记忆（删除 + 重建）**
+
+```
+❯ 把那条关于数据库的记忆改一下，PostgreSQL 改成 MySQL
+```
+
+预期：Claude 先找到该记忆的 ID，调用 `delete` 删除旧版本，再用 `save` 保存修改后的内容
+
+**测试 F：删除记忆**
+
+```
+❯ 删掉关于 standup 会议的那条记忆
+```
+
+预期：Claude 先 `search` 或 `list` 找到 ID，然后调用 `delete` 删除
+
+**测试 G：验证自动回忆（重启后）**
+
+```
+❯ 我们项目用的什么技术栈？
+```
+
+预期：Claude 回答时标注"根据我的记忆"，并引用之前保存的技术栈信息
+
+#### 第 4 步：验证 Hooks 自动生效
+
+安装后有 3 类 hook 在 Claude Code 中自动运行：
+
+**SessionStart hook** — 在第 3 步的「测试 G」中已覆盖（重启后自动注入记忆）
+
+**UserPromptSubmit hook** — 可通过 hook 日志验证：
+
+```bash
+grep "PromptRecall" ~/.pinefield/memories/hook.log | tail -10
+```
+
+预期：看到 `triggered → searching → search returned → injecting` 的完整日志链
+
+**Stop hook（AI 自动记忆提炼）：**
+
 1. 在 Claude Code 中进行一次有「记忆价值」的对话，例如：
    ```
    我们项目决定使用 PostgreSQL 而不是 MySQL，因为需要 JSONB 支持
@@ -253,6 +321,7 @@ pm2 status pinefield-scheduler
 **测试 create_task（创建任务）：**
 
 在 Claude Code 中输入：
+
 ```
 帮我创建一个定时任务，每分钟执行一次，类型是 shell，命令是 echo "hello from scheduler" >> /tmp/scheduler-test.log
 ```
@@ -270,6 +339,7 @@ pm2 status pinefield-scheduler
 **验证任务确实在执行：**
 
 等待 1-2 分钟后，在终端中检查：
+
 ```bash
 cat /tmp/scheduler-test.log
 ```
@@ -327,14 +397,14 @@ rm ~/.pinefield/scheduler/tasks.json
 
 安装插件后，可以用以下方式快速确认插件是否正常工作。
 
-| 插件 | 验证方式 | 预期结果 |
-|------|----------|----------|
-| `hello-skill` | 在 Claude Code 中说「你好，打个招呼」 | Claude 以友好方式打招呼 |
-| `greet-command` | 输入 `/greet World` | 输出包含 "World" 的问候 |
-| `code-explainer` | 输入 `/explain package.json` | 生成 sub-agent 对文件做结构化解释 |
-| `todo-reminder` | 让 Claude 写一个包含 `// TODO` 的文件 | 写入时控制台显示 TODO 提醒 |
-| `pinefield-memories` | 先保存一条记忆，重启 Claude Code 后提问相关内容 | SessionStart 注入记忆 + 搜索到匹配（详见上方完整流程） |
-| `pinefield-scheduler` | 告诉 Claude「创建一个每分钟执行的 shell 任务」 | `create_task` 成功，1 分钟后 `/tmp` 下出现日志（详见上方完整流程） |
+| 插件                  | 验证方式                                        | 预期结果                                                           |
+| --------------------- | ----------------------------------------------- | ------------------------------------------------------------------ |
+| `hello-skill`         | 在 Claude Code 中说「你好，打个招呼」           | Claude 以友好方式打招呼                                            |
+| `greet-command`       | 输入 `/greet World`                             | 输出包含 "World" 的问候                                            |
+| `code-explainer`      | 输入 `/explain package.json`                    | 生成 sub-agent 对文件做结构化解释                                  |
+| `todo-reminder`       | 让 Claude 写一个包含 `// TODO` 的文件           | 写入时控制台显示 TODO 提醒                                         |
+| `pinefield-memories`  | 说「记住我喜欢 dark mode」，再问「我喜欢什么？」 | 自然语言存储 + 搜索回忆（支持存/查/搜/删/改，详见上方测试用例）   |
+| `pinefield-scheduler` | 告诉 Claude「创建一个每分钟执行的 shell 任务」  | `create_task` 成功，1 分钟后 `/tmp` 下出现日志（详见上方完整流程） |
 
 > **注意**: `pinefield-memories` 和 `pinefield-scheduler` 安装后需要先运行 `setup.sh` 完成构建（见上方「如何使用」），否则底层 CLI / MCP Server 不可用。
 
@@ -419,13 +489,13 @@ mkdir -p plugins/my-plugin/.claude-plugin
 
 根据需要添加以下目录：
 
-| 目录 | 类型 | 必需文件 |
-|------|------|----------|
-| `skills/<name>/` | Skill | `SKILL.md`（需要 YAML frontmatter：`name` + `description`） |
-| `commands/` | Command | `<name>.md`（YAML frontmatter 可含 `description`、`argument-hint`、`allowed-tools`） |
-| `agents/` | Agent | `<name>.md`（YAML frontmatter 需含 `name`、`description`，可选 `model`、`color`、`tools`） |
-| `hooks/` | Hook | `hooks.json` + 处理脚本 |
-| `.mcp.json` | MCP Server | 根目录下的 MCP 配置文件 |
+| 目录             | 类型       | 必需文件                                                                                   |
+| ---------------- | ---------- | ------------------------------------------------------------------------------------------ |
+| `skills/<name>/` | Skill      | `SKILL.md`（需要 YAML frontmatter：`name` + `description`）                                |
+| `commands/`      | Command    | `<name>.md`（YAML frontmatter 可含 `description`、`argument-hint`、`allowed-tools`）       |
+| `agents/`        | Agent      | `<name>.md`（YAML frontmatter 需含 `name`、`description`，可选 `model`、`color`、`tools`） |
+| `hooks/`         | Hook       | `hooks.json` + 处理脚本                                                                    |
+| `.mcp.json`      | MCP Server | 根目录下的 MCP 配置文件                                                                    |
 
 ### 4. 注册到 marketplace.json
 
