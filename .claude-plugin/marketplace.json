@@ -35,6 +35,11 @@
       "name": "pinefield-scheduler",
       "source": "./plugins/pinefield-scheduler",
       "description": "Cron-based task scheduler with MCP tools for creating, listing, and deleting scheduled tasks"
+    },
+    {
+      "name": "physical-boss-hub",
+      "source": "./plugins/physical-boss-hub",
+      "description": "Device/Person registry with autonomous PM2 workers, channel-based delegation, and AI-powered task execution"
     }
   ]
 }

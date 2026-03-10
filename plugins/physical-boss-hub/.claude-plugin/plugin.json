@@ -1,0 +1,8 @@
+{
+  "name": "physical-boss-hub",
+  "description": "Device/Person registry with autonomous PM2 workers, channel-based delegation, and AI-powered task execution",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

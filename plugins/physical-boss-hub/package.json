@@ -1,0 +1,16 @@
+{
+  "name": "physical-boss-hub",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Channel-based messaging hub with device/person registry",
+  "bin": {
+    "physical-boss-hub": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

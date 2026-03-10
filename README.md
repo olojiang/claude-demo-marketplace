@@ -12,6 +12,7 @@
 | `todo-reminder`       | Hook            | 编辑文件时自动检查 TODO/FIXME 注释并提醒         |
 | `pinefield-memories`  | Skill + Hooks   | 长期记忆系统：自动回忆、AI 记忆提炼、会话归档    |
 | `pinefield-scheduler` | Skill + MCP     | 定时任务调度器：通过 MCP 工具创建/管理 cron 任务 |
+| `message-hub`         | Skill + Daemon  | 消息中枢：设备/人员注册 + Channel 发布订阅通信   |
 
 ## 目录结构
 
@@ -57,11 +58,24 @@ olojiang-demo/
     │   │   └── session-end-archive.sh
     │   └── setup.sh
     │
-    └── pinefield-scheduler/      # Skill + MCP（需要构建 + PM2）
+    ├── pinefield-scheduler/      # Skill + MCP（需要构建 + PM2）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   ├── .mcp.json
+    │   ├── skills/scheduler-skill/SKILL.md
+    │   └── setup.sh
+    │
+    └── message-hub/              # Skill + Daemon（设备/人员注册 + Channel 消息）
         ├── .claude-plugin/
         │   └── plugin.json
-        ├── .mcp.json
-        ├── skills/scheduler-skill/SKILL.md
+        ├── package.json
+        ├── src/
+        │   ├── cli.js            # CLI 入口
+        │   ├── store.js          # 文件存储工具
+        │   ├── registry.js       # Device/Person 注册
+        │   ├── channel.js        # Channel 管理 + 消息
+        │   └── daemon.js         # Memory Channel PM2 守护进程
+        ├── skills/message-hub-skill/SKILL.md
         └── setup.sh
 ```
 
@@ -114,6 +128,7 @@ claude plugin install code-explainer
 claude plugin install todo-reminder
 claude plugin install pinefield-memories
 claude plugin install pinefield-scheduler
+claude plugin install message-hub
 
 # 指定从特定 marketplace 安装（plugin@marketplace 格式）
 claude plugin install hello-skill@olojiang-demo
@@ -544,8 +559,9 @@ rm ~/.pinefield/scheduler/tasks.json
 | `todo-reminder`       | 让 Claude 写一个包含 `// TODO` 的文件           | 写入时控制台显示 TODO 提醒                                         |
 | `pinefield-memories`  | 说「记住我喜欢 dark mode」，再问「我喜欢什么？」 | 自然语言存储 + 搜索回忆（支持存/查/搜/删/改，详见上方测试用例）   |
 | `pinefield-scheduler` | 告诉 Claude「创建一个每分钟执行的 shell 任务」  | `create_task` 成功，1 分钟后 `/tmp` 下出现日志（详见上方完整流程） |
+| `message-hub`         | 说「注册一个温度传感器设备」                    | 调用 device register，返回带 UUID 的设备信息                       |
 
-> **注意**: `pinefield-memories` 和 `pinefield-scheduler` 安装后需要先运行 `setup.sh` 完成构建（见上方「如何使用」），否则底层 CLI / MCP Server 不可用。
+> **注意**: `pinefield-memories`、`pinefield-scheduler` 和 `message-hub` 安装后需要先运行 `setup.sh` 完成初始化（见上方「如何使用」）。
 
 ---
 
