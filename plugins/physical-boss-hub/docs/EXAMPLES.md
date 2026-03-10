@@ -2,12 +2,12 @@
 
 安装插件后，通过以下 3 个场景体验 Physical Boss Hub 的完整功能。
 
-> 所有命令中的 `$CLI` = `node $PLUGIN_DIR/src/cli.js`
+> 所有命令中的 `$CLI` = `node "$BOSS_CLI"`
 
 ```bash
-# 初始化路径变量
-PLUGIN_DIR=$(ls -d ~/.claude/plugins/cache/olojiang-demo/physical-boss-hub/*)
-CLI="node $PLUGIN_DIR/src/cli.js"
+# 初始化路径变量（注意：不能把 node 和路径放在同一个变量中，zsh 会把整体当作可执行文件路径）
+BOSS_HUB_DIR=$(ls -d ~/.claude/plugins/cache/olojiang-demo/physical-boss-hub/*)
+BOSS_CLI="$BOSS_HUB_DIR/src/cli.js"
 ```
 
 ---
@@ -19,7 +19,7 @@ CLI="node $PLUGIN_DIR/src/cli.js"
 **第 1 步：注册人员**
 
 ```bash
-$CLI person register \
+node "$BOSS_CLI" person register \
   --name "韩啸" \
   --description "空间智能机项目负责人，擅长撰写技术日报和项目进展报告" \
   --tags "空间智能机,项目管理,技术报告" \
@@ -51,7 +51,7 @@ pm2 status
 **第 4 步：验证消息链**
 
 ```bash
-$CLI message list --channel hub --limit 5
+node "$BOSS_CLI" message list --channel hub --limit 5
 # 预期：agent → 韩啸 的任务消息 + 韩啸 → agent 的日报回复
 ```
 
@@ -64,7 +64,7 @@ $CLI message list --channel hub --limit 5
 **第 1 步：注册设备**
 
 ```bash
-$CLI device register \
+node "$BOSS_CLI" device register \
   --name "办公室温度计" \
   --description "办公室温湿度传感器，实时采集环境数据" \
   --tags "传感器,温度,湿度,办公室" \
@@ -100,8 +100,8 @@ pm2 status
 **第 1 步：确保样例 1、2 的实体已注册**
 
 ```bash
-$CLI person list   # 应看到韩啸
-$CLI device list   # 应看到办公室温度计
+node "$BOSS_CLI" person list   # 应看到韩啸
+node "$BOSS_CLI" device list   # 应看到办公室温度计
 pm2 status         # 两个 worker 都在线
 ```
 
@@ -123,7 +123,7 @@ pm2 status         # 两个 worker 都在线
 **第 3 步：查看完整消息链**
 
 ```bash
-$CLI message list --channel hub --limit 10
+node "$BOSS_CLI" message list --channel hub --limit 10
 # 预期：4 条消息 — 2 条任务 + 2 条回复，replyTo 正确关联
 ```
 
@@ -140,8 +140,8 @@ pm2 logs mhub-device-办公室温度计 --lines 10 --nostream
 ## 清理测试环境
 
 ```bash
-$CLI person remove --id <韩啸 id>
-$CLI device remove --id <设备 id>
+node "$BOSS_CLI" person remove --id <韩啸 id>
+node "$BOSS_CLI" device remove --id <设备 id>
 
 # 或直接 PM2 清理
 pm2 delete mhub-person-韩啸

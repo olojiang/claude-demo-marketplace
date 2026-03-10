@@ -1,0 +1,16 @@
+{
+  "description": "Auto-setup: ensure data dirs, executable scripts, and PM2 daemon on session start",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/ensure-setup.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

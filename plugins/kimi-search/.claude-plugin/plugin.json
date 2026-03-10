@@ -1,0 +1,8 @@
+{
+  "name": "kimi-search",
+  "description": "Web search skill powered by Kimi (Moonshot AI) with built-in web search capability",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

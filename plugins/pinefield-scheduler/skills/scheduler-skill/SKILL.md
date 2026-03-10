@@ -56,6 +56,8 @@ bash ${CLAUDE_PLUGIN_ROOT}/setup.sh
 
 This installs runtime dependencies and starts the PM2 daemon. Requires Node.js and PM2 (`npm install -g pm2`).
 
+> **自动化**: 插件内置 `SessionStart` hook，每次会话启动时自动检查数据目录和 PM2 daemon，缺失则自动创建/启动。
+
 ## Architecture
 
 Two components work together:

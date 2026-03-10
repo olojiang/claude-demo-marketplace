@@ -1,0 +1,12 @@
+{
+  "name": "kimi-search",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Web search powered by Kimi (Moonshot AI) built-in $web_search",
+  "bin": {
+    "kimi-search": "./src/cli.js"
+  },
+  "dependencies": {
+    "openai": "^4.86.0"
+  }
+}

@@ -40,6 +40,11 @@
       "name": "physical-boss-hub",
       "source": "./plugins/physical-boss-hub",
       "description": "Device/Person registry with autonomous PM2 workers, channel-based delegation, and AI-powered task execution"
+    },
+    {
+      "name": "kimi-search",
+      "source": "./plugins/kimi-search",
+      "description": "Web search powered by Kimi (Moonshot AI) built-in $web_search capability"
     }
   ]
 }
