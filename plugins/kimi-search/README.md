@@ -28,14 +28,17 @@ bash setup.sh
 ## CLI 使用
 
 ```bash
-# 基本搜索
+# 基本搜索（默认 instant 模式，temperature=0.6）
 kimi-search search "2024年诺贝尔物理学奖得主是谁?"
 
 # 指定模型
 kimi-search search "latest AI news" --model kimi-k2.5
 
-# 调整温度
+# 调整温度（仅 instant 模式有效）
 kimi-search search "React 19 新特性" --temperature 0.3
+
+# 启用 thinking 模式（temperature 强制为 1）
+kimi-search search "复杂推理任务" --thinking
 
 # 查看帮助
 kimi-search help
@@ -67,5 +70,5 @@ kimi-search/
 | 模块 | 职责 |
 |------|------|
 | `client.js` | 创建 OpenAI 客户端，配置 Kimi API 地址、工具定义、系统提示词 |
-| `search.js` | 核心搜索循环：发送请求 → 处理 tool_calls → 返回最终结果 |
+| `search.js` | 核心搜索循环：发送请求 → 处理 tool_calls → 返回最终结果。默认 instant 模式（禁用 thinking），支持 thinking 模式（保留 reasoning_content） |
 | `cli.js` | CLI 入口，解析参数，调用 search 并输出结果 |

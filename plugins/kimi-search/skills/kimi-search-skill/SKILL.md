@@ -27,7 +27,8 @@ ${CLAUDE_PLUGIN_ROOT}/src/cli.js search "<搜索问题>"
 ### 参数
 
 - `--model <model>` 指定模型（默认 kimi-k2.5）
-- `--temperature <number>` 温度参数（默认 0.6）
+- `--temperature <number>` 温度参数，仅 instant 模式有效（默认 0.6）
+- `--thinking` 启用 thinking 模式（temperature 强制为 1，支持深度推理）
 
 ### 环境变量
 
