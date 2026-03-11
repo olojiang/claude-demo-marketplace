@@ -50,6 +50,11 @@
       "name": "google-search",
       "source": "./plugins/google-search",
       "description": "Web search powered by Google Gemini grounding with Google Search"
+    },
+    {
+      "name": "call-doubao",
+      "source": "./plugins/call-doubao",
+      "description": "Doubao AI: text chat, vision chat, text-to-image, image-to-image, and token check"
     }
   ]
 }
