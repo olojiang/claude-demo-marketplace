@@ -1,0 +1,8 @@
+{
+  "name": "google-search",
+  "description": "Web search skill powered by Google Gemini grounding with Google Search",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

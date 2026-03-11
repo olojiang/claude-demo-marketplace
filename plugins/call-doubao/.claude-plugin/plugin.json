@@ -1,0 +1,8 @@
+{
+  "name": "call-doubao",
+  "description": "Doubao AI skill: text chat, vision chat, text-to-image, image-to-image, and token check",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

@@ -47,27 +47,26 @@ describe('search', () => {
     expect(result).toBe('搜索结果内容');
   });
 
-  it('should disable thinking mode by default (instant mode)', async () => {
+  it('should disable thinking via body.thinking field in instant mode', async () => {
     mockCreate.mockResolvedValueOnce(
       makeCompletionResponse('result')
     );
 
     await search('test query');
 
-    const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs).toHaveProperty('extra_body');
-    expect(callArgs.extra_body).toEqual({ thinking: { type: 'disabled' } });
+    const body = mockCreate.mock.calls[0][0];
+    expect(body.thinking).toEqual({ type: 'disabled' });
+    expect(body.temperature).toBe(0.6);
   });
 
-  it('should use temperature=0.6 by default in instant mode', async () => {
+  it('should not pass requestOptions in instant mode (single argument)', async () => {
     mockCreate.mockResolvedValueOnce(
       makeCompletionResponse('result')
     );
 
     await search('test query');
 
-    const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs.temperature).toBe(0.6);
+    expect(mockCreate.mock.calls[0]).toHaveLength(1);
   });
 
   it('should handle tool_calls loop correctly', async () => {
@@ -88,8 +87,8 @@ describe('search', () => {
     expect(result).toBe('最终搜索结果');
     expect(mockCreate).toHaveBeenCalledTimes(2);
 
-    const secondCallMessages = mockCreate.mock.calls[1][0].messages;
-    const toolMessage = secondCallMessages.find((m) => m.role === 'tool');
+    const secondBody = mockCreate.mock.calls[1][0];
+    const toolMessage = secondBody.messages.find((m) => m.role === 'tool');
     expect(toolMessage).toBeDefined();
     expect(toolMessage.tool_call_id).toBe('call_1');
   });
@@ -111,24 +110,50 @@ describe('search', () => {
     const result = await search('test query', { thinking: true });
     expect(result).toBe('最终结果');
 
-    const secondCallMessages = mockCreate.mock.calls[1][0].messages;
-    const assistantMsg = secondCallMessages.find(
+    const secondBody = mockCreate.mock.calls[1][0];
+    const assistantMsg = secondBody.messages.find(
       (m) => m.role === 'assistant' && m.tool_calls
     );
     expect(assistantMsg).toBeDefined();
     expect(assistantMsg.reasoning_content).toBe('我需要搜索一下');
   });
 
-  it('should use temperature=1 when thinking mode is enabled', async () => {
+  it('should set reasoning_content to empty string when thinking is enabled but response has no reasoning_content', async () => {
+    const toolCall = {
+      id: 'call_1',
+      function: { name: '$web_search', arguments: '{"query":"test"}' },
+    };
+
+    mockCreate
+      .mockResolvedValueOnce(
+        makeCompletionResponse(null, 'tool_calls', [toolCall])
+      )
+      .mockResolvedValueOnce(
+        makeCompletionResponse('最终结果')
+      );
+
+    const result = await search('test query', { thinking: true });
+    expect(result).toBe('最终结果');
+
+    const secondBody = mockCreate.mock.calls[1][0];
+    const assistantMsg = secondBody.messages.find(
+      (m) => m.role === 'assistant' && m.tool_calls
+    );
+    expect(assistantMsg).toBeDefined();
+    expect(assistantMsg).toHaveProperty('reasoning_content');
+    expect(assistantMsg.reasoning_content).toBe('');
+  });
+
+  it('should use temperature=1 and no thinking field when thinking mode is enabled', async () => {
     mockCreate.mockResolvedValueOnce(
       makeThinkingCompletionResponse('result', 'reasoning')
     );
 
     await search('test query', { thinking: true });
 
-    const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs.temperature).toBe(1);
-    expect(callArgs).not.toHaveProperty('extra_body');
+    const body = mockCreate.mock.calls[0][0];
+    expect(body.temperature).toBe(1);
+    expect(body).not.toHaveProperty('thinking');
   });
 
   it('should allow custom temperature in instant mode', async () => {
@@ -138,8 +163,8 @@ describe('search', () => {
 
     await search('test query', { temperature: 0.3 });
 
-    const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs.temperature).toBe(0.3);
+    const body = mockCreate.mock.calls[0][0];
+    expect(body.temperature).toBe(0.3);
   });
 
   it('should use specified model', async () => {
@@ -149,8 +174,8 @@ describe('search', () => {
 
     await search('test query', { model: 'moonshot-v1-8k' });
 
-    const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs.model).toBe('moonshot-v1-8k');
+    const body = mockCreate.mock.calls[0][0];
+    expect(body.model).toBe('moonshot-v1-8k');
   });
 
   it('should return empty string when content is null', async () => {

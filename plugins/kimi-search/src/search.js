@@ -21,7 +21,7 @@ export async function search(query, options = {}) {
   const model = options.model || DEFAULT_MODEL;
   const thinking = options.thinking ?? false;
 
-  const requestParams = {
+  const body = {
     model,
     messages: null,
     temperature: thinking ? 1 : (options.temperature ?? 0.6),
@@ -29,7 +29,7 @@ export async function search(query, options = {}) {
   };
 
   if (!thinking) {
-    requestParams.extra_body = { thinking: { type: 'disabled' } };
+    body.thinking = { type: 'disabled' };
   }
 
   const messages = [
@@ -40,16 +40,20 @@ export async function search(query, options = {}) {
   let finishReason = null;
 
   while (finishReason === null || finishReason === 'tool_calls') {
-    requestParams.messages = messages;
-    const completion = await client.chat.completions.create(requestParams);
+    body.messages = messages;
+    const completion = await client.chat.completions.create(body);
 
     const choice = completion.choices[0];
     finishReason = choice.finish_reason;
 
     if (finishReason === 'tool_calls') {
-      const assistantMsg = { role: 'assistant', content: choice.message.content, tool_calls: choice.message.tool_calls };
-      if (choice.message.reasoning_content) {
-        assistantMsg.reasoning_content = choice.message.reasoning_content;
+      const assistantMsg = {
+        role: 'assistant',
+        content: choice.message.content,
+        tool_calls: choice.message.tool_calls,
+      };
+      if (thinking) {
+        assistantMsg.reasoning_content = choice.message.reasoning_content || '';
       }
       messages.push(assistantMsg);
 

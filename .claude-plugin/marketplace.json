@@ -45,6 +45,11 @@
       "name": "kimi-search",
       "source": "./plugins/kimi-search",
       "description": "Web search powered by Kimi (Moonshot AI) built-in $web_search capability"
+    },
+    {
+      "name": "google-search",
+      "source": "./plugins/google-search",
+      "description": "Web search powered by Google Gemini grounding with Google Search"
     }
   ]
 }
