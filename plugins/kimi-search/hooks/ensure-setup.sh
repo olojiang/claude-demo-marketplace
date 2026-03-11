@@ -8,7 +8,9 @@ CHANGED=0
 
 if [ ! -d "$PLUGIN_DIR/node_modules/openai" ]; then
   cd "$PLUGIN_DIR"
-  npm install --omit=dev --silent 2>/dev/null
+  if ! npm install --omit=dev --silent 2>&1; then
+    echo "[kimi-search] ensure-setup: npm install failed" >&2
+  fi
   CHANGED=1
 fi
 

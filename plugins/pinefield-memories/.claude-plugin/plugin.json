@@ -1,5 +1,6 @@
 {
   "name": "pinefield-memories",
+  "version": "1.0.0",
   "description": "Long-term memory system for Claude Code with automatic recall, memorization, and session archiving via hooks",
   "author": {
     "name": "Olojiang",

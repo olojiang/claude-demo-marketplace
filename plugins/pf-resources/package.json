@@ -1,0 +1,12 @@
+{
+  "name": "pf-resources",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Pinefield CDN resource upload and list",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

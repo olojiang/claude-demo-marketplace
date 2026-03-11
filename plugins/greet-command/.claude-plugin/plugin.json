@@ -1,5 +1,6 @@
 {
   "name": "greet-command",
+  "version": "1.0.0",
   "description": "A command to greet people with custom messages",
   "author": {
     "name": "Olojiang",

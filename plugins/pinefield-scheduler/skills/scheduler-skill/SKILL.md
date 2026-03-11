@@ -94,6 +94,12 @@ Manually trigger a one-off heartbeat check when idle.
 ### push_event
 Push an event to the system event queue for the next heartbeat to consume.
 
+Parameters:
+- `type` (string, required): Event type identifier (e.g. `disk_space_warning`, `high_cpu`)
+- `message` (string, required): Human-readable event description
+- `source` (string): Event source identifier (e.g. `monitor`, `user`)
+- `data` (object): Additional structured data attached to the event
+
 ## Task Types
 
 | Type | Command Field | Description |

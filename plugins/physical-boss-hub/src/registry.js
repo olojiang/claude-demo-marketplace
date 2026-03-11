@@ -13,12 +13,16 @@ function parseCsv(val) {
 }
 
 export function register(entityType, { name, description, tags, actions }) {
+  if (!name || (typeof name === 'string' && name.trim() === '')) {
+    throw new Error(`register ${entityType}: name is required and cannot be empty`);
+  }
+
   const filepath = registryPath(entityType);
   const entities = readJSON(filepath, []);
 
   const entity = {
     id: randomUUID(),
-    name,
+    name: name.trim(),
     description: description || '',
     tags: parseCsv(tags),
     actions: parseCsv(actions),

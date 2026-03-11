@@ -40,7 +40,8 @@ def extract_content(tool_input: dict, tool_name: str) -> str:
     return ''
 
 
-def find_todos(content: str) -> list[str]:
+def find_todos(content):
+    # type: (str) -> list
     """Find all TODO-like comments in the content."""
     findings = []
     for i, line in enumerate(content.splitlines(), 1):
@@ -65,7 +66,7 @@ def main():
 
     todos = find_todos(content)
     if todos:
-        msg = f"\n📝 TODO Reminder: Found {len(todos)} TODO/FIXME comment(s) in {file_path}:\n"
+        msg = f"\nTODO Reminder: Found {len(todos)} TODO/FIXME comment(s) in {file_path}:\n"
         msg += '\n'.join(todos)
         msg += "\n\nConsider addressing these before finalizing.\n"
         print(msg, file=sys.stderr)

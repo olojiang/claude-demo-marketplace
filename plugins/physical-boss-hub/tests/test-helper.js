@@ -8,10 +8,11 @@ let testDir;
 export function useTestDir() {
   beforeEach(() => {
     testDir = mkdtempSync(join(tmpdir(), 'mhub-test-'));
-    process.env.MESSAGE_HUB_DIR = testDir;
+    process.env.BOSS_HUB_DIR = testDir;
   });
 
   afterEach(() => {
+    delete process.env.BOSS_HUB_DIR;
     delete process.env.MESSAGE_HUB_DIR;
     if (testDir) rmSync(testDir, { recursive: true, force: true });
   });

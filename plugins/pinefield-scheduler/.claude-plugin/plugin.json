@@ -1,5 +1,6 @@
 {
   "name": "pinefield-scheduler",
+  "version": "1.0.0",
   "description": "Cron-based task scheduler with MCP integration, supporting claude_code, shell, node, python, http, and heartbeat tasks",
   "author": {
     "name": "Olojiang",

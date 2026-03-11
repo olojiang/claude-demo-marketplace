@@ -99,13 +99,25 @@ describe('resolveImage', () => {
     expect(result).toBe(`data:image/webp;base64,${expectedBase64}`);
   });
 
-  it('should treat non-existent path as raw base64 string', () => {
+  it('should treat raw base64 string as data URI', () => {
     existsSync.mockReturnValue(false);
 
     const raw = 'iVBORw0KGgoAAAANSUhEUg==';
     const result = resolveImage(raw);
 
     expect(result).toBe(`data:image/jpeg;base64,${raw}`);
+  });
+
+  it('should throw for non-existent file path', () => {
+    existsSync.mockReturnValue(false);
+
+    expect(() => resolveImage('/path/to/missing.png')).toThrow('file not found');
+  });
+
+  it('should throw for relative non-existent file path', () => {
+    existsSync.mockReturnValue(false);
+
+    expect(() => resolveImage('./missing/photo.jpg')).toThrow('file not found');
   });
 
   it('should handle relative path', () => {

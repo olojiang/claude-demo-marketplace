@@ -37,9 +37,15 @@ export async function search(query, options = {}) {
     { role: 'user', content: query },
   ];
 
+  const MAX_TOOL_ITERATIONS = 10;
   let finishReason = null;
+  let iteration = 0;
 
   while (finishReason === null || finishReason === 'tool_calls') {
+    if (++iteration > MAX_TOOL_ITERATIONS) {
+      console.error(`search: exceeded max tool call iterations (${MAX_TOOL_ITERATIONS}), aborting`);
+      break;
+    }
     body.messages = messages;
     const completion = await client.chat.completions.create(body);
 

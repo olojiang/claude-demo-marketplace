@@ -21,9 +21,14 @@ done
 
 if command -v pm2 &>/dev/null; then
   if ! pm2 describe physical-boss-hub-daemon &>/dev/null; then
-    pm2 start "$PLUGIN_DIR/src/daemon.js" --name physical-boss-hub-daemon --silent 2>/dev/null
-    CHANGED=1
+    if pm2 start "$PLUGIN_DIR/src/daemon.js" --name physical-boss-hub-daemon --silent; then
+      CHANGED=1
+    else
+      echo "[physical-boss-hub] ensure-setup: pm2 start failed" >&2
+    fi
   fi
+else
+  echo "[physical-boss-hub] ensure-setup: pm2 not found, daemon not started. Install with: npm install -g pm2" >&2
 fi
 
 if [ "$CHANGED" = "1" ]; then

@@ -3,6 +3,15 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 MEM_CLI="${SCRIPT_DIR}/dist/cli.js"
+LOG_FILE="${HOME}/.pinefield/memories/hook.log"
+
+for cmd in jq node; do
+  if ! command -v "$cmd" &>/dev/null; then
+    mkdir -p "$(dirname "$LOG_FILE")"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] session-start-recall: $cmd not found, skipping" >> "$LOG_FILE"
+    exit 0
+  fi
+done
 
 MEMORIES=$(node "$MEM_CLI" list 2>/dev/null)
 

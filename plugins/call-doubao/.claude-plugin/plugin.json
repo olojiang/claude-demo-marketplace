@@ -1,5 +1,6 @@
 {
   "name": "call-doubao",
+  "version": "1.0.0",
   "description": "Doubao AI skill: text chat, vision chat, text-to-image, image-to-image, and token check",
   "author": {
     "name": "Olojiang",

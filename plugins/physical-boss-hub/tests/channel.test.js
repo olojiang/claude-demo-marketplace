@@ -112,6 +112,27 @@ describe('messaging', () => {
     expect(msg.to).toEqual({ id: 'person-1', role: 'person' });
   });
 
+  it('publish infers toRole from subscriber when omitted', () => {
+    createChannel('infer-ch');
+    subscribe('infer-ch', 'dev-1', 'device');
+    const msg = publish('infer-ch', {
+      from: 'agent-1', fromRole: 'agent',
+      to: 'dev-1',
+      content: 'read sensor',
+    });
+    expect(msg.to.role).toBe('device');
+  });
+
+  it('publish defaults toRole to agent for unknown subscriber', () => {
+    createChannel('unknown-ch');
+    const msg = publish('unknown-ch', {
+      from: 'agent-1', fromRole: 'agent',
+      to: 'unknown-id',
+      content: 'hello',
+    });
+    expect(msg.to.role).toBe('agent');
+  });
+
   it('getMessages returns all messages', () => {
     createChannel('gm-ch');
     publish('gm-ch', { from: 'a', fromRole: 'agent', content: 'msg1' });
@@ -242,7 +263,7 @@ describe('pendingFor', () => {
 describe('poll', () => {
   useTestDir();
 
-  it('returns new messages and updates lastPollAt', () => {
+  it('returns new messages and updates lastPollAt', async () => {
     createChannel('poll-ch');
     subscribe('poll-ch', 'sub-1', 'person');
 
@@ -250,7 +271,7 @@ describe('poll', () => {
     const first = poll('poll-ch', 'sub-1');
     expect(first).toHaveLength(1);
 
-    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 5);
+    await new Promise(r => setTimeout(r, 5));
 
     publish('poll-ch', { from: 'a', fromRole: 'agent', content: 'msg-2' });
     const second = poll('poll-ch', 'sub-1');

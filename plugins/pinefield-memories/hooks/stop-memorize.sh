@@ -7,6 +7,13 @@ LOG_FILE="${HOME}/.pinefield/memories/hook.log"
 
 mkdir -p "$(dirname "$LOG_FILE")"
 
+for cmd in jq node; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] stop-memorize: $cmd not found, skipping" >> "$LOG_FILE"
+    exit 0
+  fi
+done
+
 INPUT=$(cat)
 
 STOP_HOOK_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // false')
@@ -52,10 +59,15 @@ Output strict JSON only:
 AI response:
 ${TRUNCATED_MSG}"
 
+if ! command -v claude &>/dev/null; then
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] stop-memorize: claude CLI not found, skipping" >> "$LOG_FILE"
+  exit 0
+fi
+
 RESULT=$(echo "$JUDGE_PROMPT" | claude -p --output-format json 2>/dev/null)
 
 if [ -z "$RESULT" ]; then
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] Stop hook: claude judge returned empty" >> "$LOG_FILE"
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] stop-memorize: claude judge returned empty" >> "$LOG_FILE"
   exit 0
 fi
 
@@ -71,8 +83,12 @@ if [ "$WORTH" = "true" ]; then
       SAVE_TAGS="${SAVE_TAGS},${TAGS}"
     fi
 
-    node "$MEM_CLI" save --content "$SUMMARY" --tags "$SAVE_TAGS" 2>/dev/null
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Stop hook: saved memory - ${SUMMARY:0:80}" >> "$LOG_FILE"
+    export MEM_SAVE_CONTENT="$SUMMARY"
+    export MEM_SAVE_TAGS="$SAVE_TAGS"
+    node -e 'const{execFileSync}=require("child_process");try{execFileSync("node",[process.argv[1],"save","--content",process.env.MEM_SAVE_CONTENT,"--tags",process.env.MEM_SAVE_TAGS],{stdio:"inherit"})}catch(e){process.exit(1)}' "$MEM_CLI" 2>/dev/null \
+      && echo "[$(date '+%Y-%m-%d %H:%M:%S')] stop-memorize: saved memory - ${SUMMARY:0:80}" >> "$LOG_FILE" \
+      || echo "[$(date '+%Y-%m-%d %H:%M:%S')] stop-memorize: save failed" >> "$LOG_FILE"
+    unset MEM_SAVE_CONTENT MEM_SAVE_TAGS
   fi
 fi
 

@@ -1,13 +1,13 @@
 ---
 name: greet
 description: Greet someone with a custom message
-argument-hint: [name]
+argument-hint: <name>
 ---
 
 # Greet Command
 
-Say hello to {name}!
+Say hello to $ARGUMENTS!
 
 ```
-Hello, {name}! Nice to meet you!
+Hello, $ARGUMENTS! Nice to meet you!
 ```

@@ -55,6 +55,16 @@
       "name": "call-doubao",
       "source": "./plugins/call-doubao",
       "description": "Doubao AI: text chat, vision chat, text-to-image, image-to-image, and token check"
+    },
+    {
+      "name": "pf-resources",
+      "source": "./plugins/pf-resources",
+      "description": "Upload files to Pinefield CDN and list resources by appId (PF_SESSION_TOKEN required)"
+    },
+    {
+      "name": "som-skill",
+      "source": "./plugins/som-skill",
+      "description": "Spatial Object Model (SOM): entity, enclosure, class, KV APIs and person detector docs"
     }
   ]
 }

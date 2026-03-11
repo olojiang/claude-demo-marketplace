@@ -34,5 +34,11 @@ export function resolveImage(input) {
     return `data:${mime};base64,${base64}`;
   }
 
+  if (input.includes('/') || input.includes('\\') || extname(input)) {
+    const err = new Error(`resolveImage: file not found: ${input}`);
+    err.code = 'FILE_NOT_FOUND';
+    throw err;
+  }
+
   return `data:image/jpeg;base64,${input}`;
 }

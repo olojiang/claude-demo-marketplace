@@ -221,11 +221,12 @@ BOSS_CLI="$BOSS_HUB_DIR/src/cli.js"
 ## 单元测试
 
 ```bash
-pnpm install && pnpm test   # 3 文件 42 case
+pnpm install && pnpm test   # 4 文件 61 case
 ```
 
-| 文件                     | 覆盖范围                                                |
-| ------------------------ | ------------------------------------------------------- |
-| `tests/registry.test.js` | Device/Person 注册、查询、删除、字段解析                |
-| `tests/channel.test.js`  | Channel 生命周期、订阅、消息发布/过滤、pendingFor、poll |
-| `tests/scenario.test.js` | 完整委派链路：意图匹配 → 发送 → 回复 → 验证             |
+| 文件                     | 覆盖范围                                                           |
+| ------------------------ | ------------------------------------------------------------------ |
+| `tests/store.test.js`    | 文件存储工具：ensureDir、readJSON、writeJSON、listDirs、getDataDir |
+| `tests/registry.test.js` | Device/Person 注册、查询、删除、字段解析、name 校验                |
+| `tests/channel.test.js`  | Channel 生命周期、订阅、消息发布/过滤、toRole 推断、pendingFor、poll |
+| `tests/scenario.test.js` | 完整委派链路：意图匹配 → 发送 → 回复 → 验证                        |

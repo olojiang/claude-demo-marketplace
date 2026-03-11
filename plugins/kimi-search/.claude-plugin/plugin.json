@@ -1,5 +1,6 @@
 {
   "name": "kimi-search",
+  "version": "1.0.0",
   "description": "Web search skill powered by Kimi (Moonshot AI) with built-in web search capability",
   "author": {
     "name": "Olojiang",

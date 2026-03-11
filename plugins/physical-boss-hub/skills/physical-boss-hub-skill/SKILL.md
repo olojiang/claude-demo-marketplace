@@ -29,7 +29,7 @@ description: |
   </example>
 ---
 
-# Message Hub Skill
+# Physical Boss Hub Skill
 
 消息中枢：设备/人员注册 + Channel 委派通信。每个注册的 person/device 拥有独立的 PM2 worker 进程，能自主接收消息并回复。
 
@@ -157,4 +157,4 @@ node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message list --channel <n> [--limit 20]
 
 ## 数据目录
 
-`~/.pinefield/physical-boss-hub/`，可通过 `MESSAGE_HUB_DIR` 环境变量覆盖。
+`~/.pinefield/physical-boss-hub/`，可通过 `BOSS_HUB_DIR` 环境变量覆盖。

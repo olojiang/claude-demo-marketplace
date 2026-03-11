@@ -63,12 +63,18 @@ export function publish(channelName, { from, fromRole, to, toRole, content, repl
   const meta = readJSON(metaPath(channelName), null);
   if (!meta) throw new Error(`channel not found: ${channelName}`);
 
+  let resolvedToRole = toRole;
+  if (to && !resolvedToRole) {
+    const sub = meta.subscribers.find(s => s.id === to);
+    resolvedToRole = sub ? sub.role : 'agent';
+  }
+
   const messages = readJSON(messagesPath(channelName), []);
   const msg = {
     id: randomUUID(),
     channel: channelName,
     from: { id: from, role: fromRole },
-    to: to ? { id: to, role: toRole || 'agent' } : null,
+    to: to ? { id: to, role: resolvedToRole } : null,
     content,
     replyTo: replyTo || null,
     timestamp: new Date().toISOString(),

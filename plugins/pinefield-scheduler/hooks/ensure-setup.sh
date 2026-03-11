@@ -14,9 +14,14 @@ fi
 
 if command -v pm2 &>/dev/null; then
   if ! pm2 describe pinefield-scheduler &>/dev/null; then
-    pm2 start "$PLUGIN_DIR/dist/daemon.js" --name pinefield-scheduler --silent 2>/dev/null
-    CHANGED=1
+    if pm2 start "$PLUGIN_DIR/dist/daemon.js" --name pinefield-scheduler --silent; then
+      CHANGED=1
+    else
+      echo "[pinefield-scheduler] ensure-setup: pm2 start failed" >&2
+    fi
   fi
+else
+  echo "[pinefield-scheduler] ensure-setup: pm2 not found, daemon not started. Install with: npm install -g pm2" >&2
 fi
 
 if [ "$CHANGED" = "1" ]; then

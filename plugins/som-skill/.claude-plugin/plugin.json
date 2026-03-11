@@ -1,0 +1,9 @@
+{
+  "name": "som-skill",
+  "version": "1.0.0",
+  "description": "Spatial Object Model (SOM) skill: entity/enclosure/class/KV APIs and person detector docs",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

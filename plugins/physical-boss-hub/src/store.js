@@ -11,6 +11,7 @@ import { homedir } from "node:os";
 
 export function getDataDir() {
   const dir =
+    process.env.BOSS_HUB_DIR ||
     process.env.MESSAGE_HUB_DIR ||
     join(homedir(), ".pinefield", "physical-boss-hub");
   ensureDir(dir);

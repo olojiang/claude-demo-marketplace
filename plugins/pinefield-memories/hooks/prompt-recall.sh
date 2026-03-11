@@ -7,6 +7,13 @@ LOG_FILE="${HOME}/.pinefield/memories/hook.log"
 
 mkdir -p "$(dirname "$LOG_FILE")"
 
+for cmd in jq node; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] PromptRecall: $cmd not found, skipping" >> "$LOG_FILE"
+    exit 0
+  fi
+done
+
 INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty')
 
@@ -17,7 +24,6 @@ if [ -z "$PROMPT" ]; then
   exit 0
 fi
 
-# Skip internal system prompts (e.g. judge prompts from stop-memorize hook's `claude -p`)
 case "$PROMPT" in
   "You are a memory management"*|"你是一个记忆管理"*)
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] PromptRecall: skipped internal judge prompt" >> "$LOG_FILE"
@@ -25,7 +31,7 @@ case "$PROMPT" in
     ;;
 esac
 
-QUERY=$(echo "$PROMPT" | cut -c1-100)
+QUERY=$(printf '%s' "$PROMPT" | head -c 100)
 
 if [ ${#QUERY} -lt 2 ]; then
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] PromptRecall: query too short (${#QUERY}), skip" >> "$LOG_FILE"
@@ -34,7 +40,9 @@ fi
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] PromptRecall: searching query='${QUERY:0:60}'" >> "$LOG_FILE"
 
-RESULTS=$(node "$MEM_CLI" search --query "$QUERY" 2>/dev/null)
+export MEM_SEARCH_QUERY="$QUERY"
+RESULTS=$(node -e 'const{execFileSync}=require("child_process");try{const r=execFileSync("node",[process.argv[1],"search","--query",process.env.MEM_SEARCH_QUERY],{encoding:"utf-8"});process.stdout.write(r)}catch(e){process.exit(1)}' "$MEM_CLI" 2>/dev/null)
+unset MEM_SEARCH_QUERY
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] PromptRecall: search returned ${#RESULTS} bytes" >> "$LOG_FILE"
 

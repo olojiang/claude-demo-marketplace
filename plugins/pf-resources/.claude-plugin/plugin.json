@@ -1,0 +1,9 @@
+{
+  "name": "pf-resources",
+  "version": "1.0.0",
+  "description": "Upload files to Pinefield CDN and list resources by appId",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

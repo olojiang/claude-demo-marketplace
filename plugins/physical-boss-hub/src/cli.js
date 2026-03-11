@@ -65,7 +65,7 @@ try {
     case 'device':
     case 'person':  handleRegistry(command); break;
     case 'channel': handleChannel(); break;
-    case 'message': handleMessage(); break;
+    case 'message': await handleMessage(); break;
     case 'worker':  handleWorker(); break;
     default:        printHelp();
   }
@@ -142,7 +142,7 @@ function handleChannel() {
   }
 }
 
-function handleMessage() {
+async function handleMessage() {
   switch (subcommand) {
     case 'publish':
       requireArgs(['channel', 'from', 'from-role', 'content']);
@@ -174,12 +174,14 @@ function handleMessage() {
       const timeoutSec = parseInt(arg('timeout') || '60', 10);
       const intervalMs = 3000;
       const maxAttempts = Math.ceil((timeoutSec * 1000) / intervalMs);
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+      let found = false;
       for (let i = 0; i < maxAttempts; i++) {
         const replies = getReplies(ch, msgId);
-        if (replies.length > 0) { out(replies); process.exit(0); }
-        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, intervalMs);
+        if (replies.length > 0) { out(replies); found = true; break; }
+        await sleep(intervalMs);
       }
-      out([]);
+      if (!found) out([]);
       break;
     }
     case 'poll':

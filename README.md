@@ -12,7 +12,10 @@
 | `todo-reminder`       | Hook            | 编辑文件时自动检查 TODO/FIXME 注释并提醒         |
 | `pinefield-memories`  | Skill + Hooks   | 长期记忆系统：自动回忆、AI 记忆提炼、会话归档    |
 | `pinefield-scheduler` | Skill + MCP     | 定时任务调度器：通过 MCP 工具创建/管理 cron 任务 |
-| `message-hub`         | Skill + Daemon  | 消息中枢：设备/人员注册 + Channel 发布订阅通信   |
+| `physical-boss-hub`   | Skill + Daemon  | 消息中枢：设备/人员注册 + Channel 委派通信       |
+| `kimi-search`         | Skill           | 使用 Kimi (Moonshot AI) 联网搜索                 |
+| `google-search`       | Skill           | 使用 Google Gemini Grounding 联网搜索            |
+| `call-doubao`         | Skill           | 豆包 AI 多模态：文本对话、图文、文生图           |
 
 ## 目录结构
 
@@ -46,9 +49,10 @@ olojiang-demo/
     │       ├── hooks.json
     │       └── check_todos.py
     │
-    ├── pinefield-memories/       # Skill + Hooks（需要构建）
+    ├── pinefield-memories/       # Skill + Hooks（CLI 已预编译）
     │   ├── .claude-plugin/
     │   │   └── plugin.json
+    │   ├── dist/cli.js           # 预编译 CLI
     │   ├── skills/memory-skill/SKILL.md
     │   ├── hooks/
     │   │   ├── hooks.json
@@ -58,25 +62,66 @@ olojiang-demo/
     │   │   └── session-end-archive.sh
     │   └── setup.sh
     │
-    ├── pinefield-scheduler/      # Skill + MCP（需要构建 + PM2）
+    ├── pinefield-scheduler/      # Skill + MCP（需要 PM2）
     │   ├── .claude-plugin/
     │   │   └── plugin.json
     │   ├── .mcp.json
+    │   ├── dist/
+    │   │   ├── daemon.js         # PM2 守护进程
+    │   │   └── mcp-server.js     # MCP stdio 服务
+    │   ├── hooks/
+    │   │   ├── hooks.json
+    │   │   └── ensure-setup.sh
     │   ├── skills/scheduler-skill/SKILL.md
     │   └── setup.sh
     │
-    └── message-hub/              # Skill + Daemon（设备/人员注册 + Channel 消息）
+    ├── physical-boss-hub/        # Skill + Daemon（设备/人员注册 + Channel 委派通信）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   ├── package.json
+    │   ├── hooks/
+    │   │   ├── hooks.json
+    │   │   └── ensure-setup.sh
+    │   ├── src/
+    │   │   ├── cli.js            # CLI 入口
+    │   │   ├── store.js          # 文件存储工具
+    │   │   ├── registry.js       # Device/Person 注册
+    │   │   ├── channel.js        # Channel 管理 + 消息
+    │   │   ├── daemon.js         # Memory Channel PM2 守护进程
+    │   │   └── worker.js         # 独立 Worker 进程
+    │   ├── tests/                # vitest 单元测试
+    │   ├── skills/physical-boss-hub-skill/SKILL.md
+    │   └── setup.sh
+    │
+    ├── kimi-search/              # Skill（Kimi 联网搜索）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   ├── skills/kimi-search-skill/SKILL.md
+    │   └── src/
+    │       ├── cli.js
+    │       ├── search.js
+    │       └── client.js
+    │
+    ├── google-search/            # Skill（Google 联网搜索）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   ├── skills/google-search-skill/SKILL.md
+    │   └── src/
+    │       ├── cli.js
+    │       ├── search.js
+    │       └── client.js
+    │
+    └── call-doubao/              # Skill（豆包 AI 多模态）
         ├── .claude-plugin/
         │   └── plugin.json
-        ├── package.json
-        ├── src/
-        │   ├── cli.js            # CLI 入口
-        │   ├── store.js          # 文件存储工具
-        │   ├── registry.js       # Device/Person 注册
-        │   ├── channel.js        # Channel 管理 + 消息
-        │   └── daemon.js         # Memory Channel PM2 守护进程
-        ├── skills/message-hub-skill/SKILL.md
-        └── setup.sh
+        ├── skills/call-doubao-skill/SKILL.md
+        └── src/
+            ├── cli.js
+            ├── chat.js
+            ├── client.js
+            ├── image.js
+            ├── token.js
+            └── resolve-image.js
 ```
 
 ## 关键规则
@@ -128,7 +173,10 @@ claude plugin install code-explainer
 claude plugin install todo-reminder
 claude plugin install pinefield-memories
 claude plugin install pinefield-scheduler
-claude plugin install message-hub
+claude plugin install physical-boss-hub
+claude plugin install kimi-search
+claude plugin install google-search
+claude plugin install call-doubao
 
 # 指定从特定 marketplace 安装（plugin@marketplace 格式）
 claude plugin install hello-skill@olojiang-demo
@@ -559,9 +607,12 @@ rm ~/.pinefield/scheduler/tasks.json
 | `todo-reminder`       | 让 Claude 写一个包含 `// TODO` 的文件           | 写入时控制台显示 TODO 提醒                                         |
 | `pinefield-memories`  | 说「记住我喜欢 dark mode」，再问「我喜欢什么？」 | 自然语言存储 + 搜索回忆（支持存/查/搜/删/改，详见上方测试用例）   |
 | `pinefield-scheduler` | 告诉 Claude「创建一个每分钟执行的 shell 任务」  | `create_task` 成功，1 分钟后 `/tmp` 下出现日志（详见上方完整流程） |
-| `message-hub`         | 说「注册一个温度传感器设备」                    | 调用 device register，返回带 UUID 的设备信息                       |
+| `physical-boss-hub`   | 说「注册一个温度传感器设备」                    | 调用 device register，返回带 UUID 的设备信息                       |
+| `kimi-search`         | 说「用 kimi 搜索最新 AI 新闻」                  | 调用 Kimi 搜索，返回带引用的结果                                   |
+| `google-search`       | 说「用 google 搜索 Claude Code 最新版本」       | 调用 Gemini 搜索，返回带引用的结果                                 |
+| `call-doubao`         | 说「用豆包帮我分析这张图片」                    | 调用豆包视觉模型，返回分析结果                                     |
 
-> **注意**: `pinefield-memories`、`pinefield-scheduler` 和 `message-hub` 安装后需要先运行 `setup.sh` 完成初始化（见上方「如何使用」）。
+> **注意**: `pinefield-memories`、`pinefield-scheduler` 和 `physical-boss-hub` 安装后需要先运行 `setup.sh` 完成初始化（见上方「如何使用」）。
 
 ---
 

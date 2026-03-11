@@ -1,5 +1,6 @@
 {
   "name": "todo-reminder",
+  "version": "1.0.0",
   "description": "A demo hook plugin that reminds about TODO/FIXME comments when editing files",
   "author": {
     "name": "Olojiang",

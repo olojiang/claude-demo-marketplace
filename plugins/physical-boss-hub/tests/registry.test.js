@@ -77,6 +77,27 @@ describe('device management', () => {
     expect(dev.actions).toEqual([]);
     expect(dev.description).toBe('');
   });
+
+  it('register with empty name throws', () => {
+    expect(() => register('device', { name: '' })).toThrow('name is required');
+  });
+
+  it('register with whitespace-only name throws', () => {
+    expect(() => register('device', { name: '   ' })).toThrow('name is required');
+  });
+
+  it('register with null name throws', () => {
+    expect(() => register('device', { name: null })).toThrow('name is required');
+  });
+
+  it('register with undefined name throws', () => {
+    expect(() => register('device', {})).toThrow('name is required');
+  });
+
+  it('register trims whitespace from name', () => {
+    const dev = register('device', { name: '  sensor  ' });
+    expect(dev.name).toBe('sensor');
+  });
 });
 
 describe('person management', () => {

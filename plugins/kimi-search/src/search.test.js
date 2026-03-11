@@ -186,4 +186,27 @@ describe('search', () => {
     const result = await search('test query');
     expect(result).toBe('');
   });
+
+  it('should abort after max tool call iterations to prevent infinite loop', async () => {
+    const toolCall = {
+      id: 'call_loop',
+      function: { name: '$web_search', arguments: '{"query":"test"}' },
+    };
+
+    for (let i = 0; i < 12; i++) {
+      mockCreate.mockResolvedValueOnce(
+        makeCompletionResponse(null, 'tool_calls', [toolCall])
+      );
+    }
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const result = await search('test query');
+
+    expect(result).toBe('');
+    expect(mockCreate.mock.calls.length).toBeLessThanOrEqual(11);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('exceeded max tool call iterations')
+    );
+    consoleSpy.mockRestore();
+  });
 });

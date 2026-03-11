@@ -14,6 +14,10 @@
 ## 安装
 
 ```bash
+# 方式一：通过 marketplace 安装
+claude plugin install google-search
+
+# 方式二：手动安装后运行 setup
 bash setup.sh
 ```
 
