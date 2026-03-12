@@ -202,6 +202,7 @@ claude plugin validate ./plugins/my-plugin
 
 ```
 rm -rf ~/.claude/plugins/cache/olojiang-demo
+ls -l ~/.claude/plugins/cache/olojiang-demo
 ```
 
 ## 如何使用
