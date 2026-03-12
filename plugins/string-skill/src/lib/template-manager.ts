@@ -1,6 +1,7 @@
 import type { StringTemplate } from './types.js';
 import { Storage } from './storage.js';
 import { TemplateRenderer } from './template-renderer.js';
+import { EnclosureManager } from './enclosure-manager.js';
 
 /**
  * 模版管理器
@@ -9,11 +10,13 @@ import { TemplateRenderer } from './template-renderer.js';
 export class TemplateManager {
     private storage: Storage;
     private renderer: TemplateRenderer;
+    private enclosureManager: EnclosureManager;
     private templates: Map<string, StringTemplate>;
 
     constructor(configDir?: string) {
         this.storage = new Storage(configDir);
         this.renderer = new TemplateRenderer();
+        this.enclosureManager = new EnclosureManager(configDir);
         this.templates = new Map();
         this.loadTemplates();
     }
@@ -117,5 +120,69 @@ export class TemplateManager {
             template.key.toLowerCase().includes(lowerQuery) ||
             template.name.toLowerCase().includes(lowerQuery)
         );
+    }
+
+    /**
+     * 按围栏名称部分解析 encId 并渲染模版（模版含 {encId} 时）
+     * @param keyOrQuery 模版 key 或名称关键词
+     * @param encNamePart 围栏名称部分（如「防汛」匹配「上海防汛」）
+     * @param variables 其他变量
+     * @returns 渲染结果数组（匹配到多个围栏时返回多条）
+     */
+    renderWithEncName(
+        keyOrQuery: string,
+        encNamePart: string,
+        variables: Record<string, string> = {}
+    ): string[] {
+        let template = this.get(keyOrQuery);
+        if (!template) {
+            const found = this.search(keyOrQuery);
+            if (found.length === 0) throw new Error(`Template not found: ${keyOrQuery}`);
+            if (found.length > 1) throw new Error(`Multiple templates match "${keyOrQuery}", use exact key`);
+            template = found[0];
+        }
+
+        const needsEncId = template.variables.includes('encId');
+        if (!needsEncId) {
+            const out = this.renderer.render(template, variables);
+            return [out];
+        }
+
+        const enclosures = this.enclosureManager.findByNamePart(encNamePart);
+        if (enclosures.length === 0) {
+            throw new Error(`未找到匹配的围栏: ${encNamePart}`);
+        }
+
+        return enclosures.map(enc => {
+            const vars = { ...variables, encId: enc.id };
+            return this.renderer.render(template!, vars);
+        });
+    }
+
+    /**
+     * 按 tag 搜索模版
+     */
+    searchByTag(tag: string): StringTemplate[] {
+        return this.list().filter(t => (t.tags ?? []).includes(tag));
+    }
+
+    /**
+     * 按 tag 查找模版，并用围栏名称解析 encId，返回所有模版的渲染结果（多条）
+     */
+    renderByTagAndEncName(
+        tag: string,
+        encNamePart: string,
+        variables: Record<string, string> = {}
+    ): string[] {
+        const templates = this.searchByTag(tag);
+        if (templates.length === 0) {
+            throw new Error(`未找到 tag 为 "${tag}" 的模版`);
+        }
+        const results: string[] = [];
+        for (const template of templates) {
+            const rendered = this.renderWithEncName(template.key, encNamePart, variables);
+            results.push(...rendered);
+        }
+        return results;
     }
 }

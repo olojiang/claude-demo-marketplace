@@ -10,6 +10,23 @@ export interface StringTemplate {
     content: string;
     /** 变量列表 */
     variables: string[];
+    /** 标签列表，用于按 tag 筛选模版 */
+    tags?: string[];
+}
+
+/**
+ * 空间/园区围栏 {id, name} 对
+ */
+export interface Enclosure {
+    id: string;
+    name: string;
+}
+
+/**
+ * 围栏配置文件结构
+ */
+export interface EnclosureConfig {
+    enclosures: Enclosure[];
 }
 
 /**

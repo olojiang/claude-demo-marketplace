@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TemplateManager } from './template-manager.js';
+import { EnclosureManager } from './enclosure-manager.js';
 import type { StringTemplate } from './types.js';
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -218,6 +219,126 @@ describe('TemplateManager', () => {
         it('should be case insensitive', () => {
             const results = manager.search('SPACETOP');
             expect(results).toHaveLength(1);
+        });
+    });
+
+    describe('renderWithEncName', () => {
+        it('should resolve encId by enclosure name part and render', () => {
+            manager.add({
+                key: 'link',
+                name: '空间链接',
+                content: 'https://test.com/?encId={encId}',
+                variables: ['encId'],
+            });
+
+            const results = manager.renderWithEncName('link', '防汛', {});
+            expect(results).toHaveLength(1);
+            expect(results[0]).toContain('encId=1HjUP8DHNsdA6cXtWxbEUt');
+        });
+
+        it('should return multiple strings when multiple enclosures match name part', () => {
+            const encManager = new EnclosureManager(testConfigDir);
+            encManager.add({ id: 'id-a', name: '测试东方A' });
+            encManager.add({ id: 'id-b', name: '测试东方B' });
+            const manager2 = new TemplateManager(testConfigDir);
+            manager2.add({
+                key: 'link',
+                name: '链接',
+                content: 'https://a.com/{encId}',
+                variables: ['encId'],
+            });
+            const results = manager2.renderWithEncName('link', '东方', {});
+            expect(results.length).toBeGreaterThanOrEqual(2);
+            expect(results.every(r => r.startsWith('https://a.com/'))).toBe(true);
+        });
+
+        it('should throw when template has encId but no enclosure match', () => {
+            manager.add({
+                key: 'link',
+                name: '链接',
+                content: 'https://a.com/{encId}',
+                variables: ['encId'],
+            });
+            expect(() => manager.renderWithEncName('link', '不存在的围栏名xyz', {}))
+                .toThrow(/未找到匹配的围栏/);
+        });
+
+        it('should allow extra variables together with encId', () => {
+            manager.add({
+                key: 'url',
+                name: 'URL',
+                content: 'https://a.com/?encId={encId}&uid={userId}',
+                variables: ['encId', 'userId'],
+            });
+            const results = manager.renderWithEncName('url', '进博会', { userId: 'u1' });
+            expect(results).toHaveLength(1);
+            expect(results[0]).toContain('encId=6fM8Y6KTl5oAj1rv00lZmI');
+            expect(results[0]).toContain('uid=u1');
+        });
+    });
+
+    describe('tags', () => {
+        it('should store and list templates with tags', () => {
+            manager.add({
+                key: 'link1',
+                name: '链接1',
+                content: 'https://a.com/{encId}',
+                variables: ['encId'],
+                tags: ['link', '防汛'],
+            });
+            manager.add({
+                key: 'link2',
+                name: '链接2',
+                content: 'https://b.com/{encId}',
+                variables: ['encId'],
+                tags: ['link'],
+            });
+            const byLink = manager.searchByTag('link');
+            expect(byLink).toHaveLength(2);
+            const byFangxun = manager.searchByTag('防汛');
+            expect(byFangxun).toHaveLength(1);
+            expect(byFangxun[0].key).toBe('link1');
+        });
+
+        it('should return empty when no template has tag', () => {
+            manager.add({ key: 'x', name: 'x', content: 'x', variables: [], tags: ['other'] });
+            expect(manager.searchByTag('link')).toEqual([]);
+        });
+
+        it('should treat missing tags as empty array', () => {
+            manager.add({ key: 'no-tag', name: '无标签', content: 'c', variables: [] });
+            expect(manager.searchByTag('any')).toEqual([]);
+            expect(manager.get('no-tag')?.tags).toEqual(undefined);
+        });
+    });
+
+    describe('renderByTagAndEncName', () => {
+        it('should render all templates with tag using enclosure name and return multiple strings', () => {
+            manager.add({
+                key: 'link-a',
+                name: '链接A',
+                content: 'https://a.com/{encId}',
+                variables: ['encId'],
+                tags: ['link'],
+            });
+            manager.add({
+                key: 'link-b',
+                name: '链接B',
+                content: 'https://b.com/{encId}',
+                variables: ['encId'],
+                tags: ['link'],
+            });
+            const results = manager.renderByTagAndEncName('link', '防汛', {});
+            expect(results).toHaveLength(2);
+            expect(results[0]).toContain('1HjUP8DHNsdA6cXtWxbEUt');
+            expect(results[1]).toContain('1HjUP8DHNsdA6cXtWxbEUt');
+            expect(results.some(r => r.startsWith('https://a.com/'))).toBe(true);
+            expect(results.some(r => r.startsWith('https://b.com/'))).toBe(true);
+        });
+
+        it('should throw when no template has tag', () => {
+            expect(() => manager.renderByTagAndEncName('nonexistent-tag', '防汛', {}))
+                .toThrow(/未找到.*tag/);
         });
     });
 });

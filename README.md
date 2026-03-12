@@ -599,18 +599,18 @@ rm ~/.pinefield/scheduler/tasks.json
 
 安装插件后，可以用以下方式快速确认插件是否正常工作。
 
-| 插件                  | 验证方式                                        | 预期结果                                                           |
-| --------------------- | ----------------------------------------------- | ------------------------------------------------------------------ |
-| `hello-skill`         | 在 Claude Code 中说「你好，打个招呼」           | Claude 以友好方式打招呼                                            |
-| `greet-command`       | 输入 `/greet World`                             | 输出包含 "World" 的问候                                            |
-| `code-explainer`      | 输入 `/explain package.json`                    | 生成 sub-agent 对文件做结构化解释                                  |
-| `todo-reminder`       | 让 Claude 写一个包含 `// TODO` 的文件           | 写入时控制台显示 TODO 提醒                                         |
-| `pinefield-memories`  | 说「记住我喜欢 dark mode」，再问「我喜欢什么？」 | 自然语言存储 + 搜索回忆（支持存/查/搜/删/改，详见上方测试用例）   |
-| `pinefield-scheduler` | 告诉 Claude「创建一个每分钟执行的 shell 任务」  | `create_task` 成功，1 分钟后 `/tmp` 下出现日志（详见上方完整流程） |
-| `physical-boss-hub`   | 说「注册一个温度传感器设备」                    | 调用 device register，返回带 UUID 的设备信息                       |
-| `kimi-search`         | 说「用 kimi 搜索最新 AI 新闻」                  | 调用 Kimi 搜索，返回带引用的结果                                   |
-| `google-search`       | 说「用 google 搜索 Claude Code 最新版本」       | 调用 Gemini 搜索，返回带引用的结果                                 |
-| `call-doubao`         | 说「用豆包帮我分析这张图片」                    | 调用豆包视觉模型，返回分析结果                                     |
+| 插件                  | 验证方式                                         | 预期结果                                                           |
+| --------------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
+| `hello-skill`         | 在 Claude Code 中说「你好，打个招呼」            | Claude 以友好方式打招呼                                            |
+| `greet-command`       | 输入 `/greet World`                              | 输出包含 "World" 的问候                                            |
+| `code-explainer`      | 输入 `/explain package.json`                     | 生成 sub-agent 对文件做结构化解释                                  |
+| `todo-reminder`       | 让 Claude 写一个包含 `// TODO` 的文件            | 写入时控制台显示 TODO 提醒                                         |
+| `pinefield-memories`  | 说「记住我喜欢 dark mode」，再问「我喜欢什么？」 | 自然语言存储 + 搜索回忆（支持存/查/搜/删/改，详见上方测试用例）    |
+| `pinefield-scheduler` | 告诉 Claude「创建一个每分钟执行的 shell 任务」   | `create_task` 成功，1 分钟后 `/tmp` 下出现日志（详见上方完整流程） |
+| `physical-boss-hub`   | 说「注册一个温度传感器设备」                     | 调用 device register，返回带 UUID 的设备信息                       |
+| `kimi-search`         | 说「用 kimi 搜索最新 AI 新闻」                   | 调用 Kimi 搜索，返回带引用的结果                                   |
+| `google-search`       | 说「用 google 搜索 Claude Code 最新版本」        | 调用 Gemini 搜索，返回带引用的结果                                 |
+| `call-doubao`         | 说「用豆包帮我分析这张图片」                     | 调用豆包视觉模型，返回分析结果                                     |
 
 > **注意**: `pinefield-memories`、`pinefield-scheduler` 和 `physical-boss-hub` 安装后需要先运行 `setup.sh` 完成初始化（见上方「如何使用」）。
 
