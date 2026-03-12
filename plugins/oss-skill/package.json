@@ -1,0 +1,25 @@
+{
+  "name": "oss-skill",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Aliyun OSS operations for Claude Code",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "ali-oss": "^6.20.0",
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.16.0",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "string-skill",
+  "version": "1.0.0",
+  "description": "String template management with {variable} placeholders, CRUD and rendering",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

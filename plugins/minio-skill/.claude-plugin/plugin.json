@@ -1,0 +1,9 @@
+{
+  "name": "minio-skill",
+  "version": "1.0.0",
+  "description": "MinIO/S3 object storage: list buckets/objects, upload, download, delete",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

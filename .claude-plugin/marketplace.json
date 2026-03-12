@@ -65,6 +65,26 @@
       "name": "som-skill",
       "source": "./plugins/som-skill",
       "description": "Spatial Object Model (SOM): entity, enclosure, class, KV APIs and person detector docs"
+    },
+    {
+      "name": "kv-skill",
+      "source": "./plugins/kv-skill",
+      "description": "Redis key-value store: string, number, list, JSON operations with TTL support"
+    },
+    {
+      "name": "minio-skill",
+      "source": "./plugins/minio-skill",
+      "description": "MinIO/S3 object storage: list buckets/objects, upload, download, delete"
+    },
+    {
+      "name": "oss-skill",
+      "source": "./plugins/oss-skill",
+      "description": "Aliyun OSS operations: upload, download, list, delete, rename, symlink, signed URL"
+    },
+    {
+      "name": "string-skill",
+      "source": "./plugins/string-skill",
+      "description": "String template management with {variable} placeholders, CRUD and rendering"
     }
   ]
 }

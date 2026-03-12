@@ -1,0 +1,9 @@
+{
+  "name": "oss-skill",
+  "version": "1.0.0",
+  "description": "Aliyun OSS operations: upload, download, list, delete, rename, symlink, signed URL",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

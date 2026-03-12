@@ -1,0 +1,9 @@
+{
+  "name": "kv-skill",
+  "version": "1.0.0",
+  "description": "Redis key-value store operations: string, number, list, JSON with TTL support",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}
