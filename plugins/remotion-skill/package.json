@@ -1,0 +1,25 @@
+{
+  "name": "remotion-skill",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Remotion video generation from content and duration, default /tmp output",
+  "bin": {
+    "remotion-video": "./src/cli.js"
+  },
+  "scripts": {
+    "render": "node src/cli.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.435",
+    "@remotion/renderer": "^4.0.435",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.435"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.18"
+  }
+}

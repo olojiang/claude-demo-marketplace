@@ -1,0 +1,19 @@
+{
+  "name": "tts-skill",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Edge TTS: text to MP3 with Chinese Xiaoxiao default, list voices",
+  "bin": {
+    "tts": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "edge-tts-universal": "^1.4.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

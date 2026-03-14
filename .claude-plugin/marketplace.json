@@ -85,6 +85,26 @@
       "name": "string-skill",
       "source": "./plugins/string-skill",
       "description": "String template management with {variable} placeholders, CRUD and rendering"
+    },
+    {
+      "name": "jw-stock",
+      "source": "./plugins/jw-stock",
+      "description": "Stock follow list CRUD, quote and history (US/Finnhub, A股/港股/akshare), news"
+    },
+    {
+      "name": "tts-skill",
+      "source": "./plugins/tts-skill",
+      "description": "Edge TTS: text to MP3, default zh-CN Xiaoxiao, voices/love to list options"
+    },
+    {
+      "name": "openclaw",
+      "source": "./plugins/openclaw",
+      "description": "Skills synced from OpenClaw"
+    },
+    {
+      "name": "remotion-skill",
+      "source": "./plugins/remotion-skill",
+      "description": "Remotion video from content + duration, default /tmp, custom output path"
     }
   ]
 }

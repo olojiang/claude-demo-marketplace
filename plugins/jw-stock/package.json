@@ -1,0 +1,16 @@
+{
+  "name": "jw-stock",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Stock follow list, quote and history (US/Finnhub, A股/港股/akshare)",
+  "bin": {
+    "jw-stock": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

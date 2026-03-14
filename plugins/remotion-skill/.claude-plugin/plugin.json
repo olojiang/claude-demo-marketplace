@@ -1,0 +1,9 @@
+{
+  "name": "remotion-skill",
+  "version": "1.0.0",
+  "description": "Remotion video generation from content and duration, default /tmp output",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

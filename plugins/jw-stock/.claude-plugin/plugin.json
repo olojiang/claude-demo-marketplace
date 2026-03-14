@@ -1,0 +1,9 @@
+{
+  "name": "jw-stock",
+  "version": "1.0.0",
+  "description": "Stock follow list CRUD, quote and history analysis (US via Finnhub, A股/港股 via akshare)",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

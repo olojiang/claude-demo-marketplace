@@ -1,0 +1,9 @@
+{
+  "name": "tts-skill",
+  "version": "1.0.0",
+  "description": "Edge TTS: text to MP3 (default zh-CN Xiaoxiao), list voices",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}

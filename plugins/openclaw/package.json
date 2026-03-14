@@ -1,0 +1,6 @@
+{
+  "name": "openclaw",
+  "version": "1.0.0",
+  "description": "Skills synced from OpenClaw",
+  "type": "module"
+}
