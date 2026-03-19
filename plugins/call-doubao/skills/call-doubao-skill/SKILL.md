@@ -104,3 +104,17 @@ assistant:
 - 本地文件路径会自动读取并转为 base64，支持 jpg/jpeg/png/gif/webp/bmp/svg
 - 纯 base64 输入会自动添加 `data:image/jpeg;base64,` 前缀
 - 图生图需要同时提供 prompt 和 --image 参数
+
+## Token/Session 过期
+
+当 Doubao 的 **sessionId（即环境变量 DOUBAO_API_KEY）过期或无效**时：
+
+- **chat / image** 请求会失败，命令行会打印明确错误并提示如何更新。
+- **token-check** 若返回 `"live": false`，同样会提示该 token 已过期。
+
+**更新方法：**
+
+1. 在 `~/.zshrc` 中设置新的 token：`export DOUBAO_API_KEY="<新 token>"`
+2. 执行 `source ~/.zshrc` 或重新打开终端。
+
+重新获取 token 后按上述步骤更新即可继续使用。

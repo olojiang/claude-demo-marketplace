@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getApiKey, request, DEFAULT_CHAT_MODEL, DEFAULT_IMAGE_MODEL } from './client.js';
+import {
+  getApiKey,
+  request,
+  DEFAULT_CHAT_MODEL,
+  DEFAULT_IMAGE_MODEL,
+  SESSION_EXPIRED_HINT,
+} from './client.js';
 
 describe('client', () => {
   const ORIGINAL_ENV = process.env;
@@ -61,12 +67,33 @@ describe('client', () => {
 
       await expect(request('/v1/test', {})).rejects.toThrow('request failed [401]: invalid token');
     });
+
+    it('should set code DOUBAO_SESSION_EXPIRED on 401 or token-related errors', async () => {
+      process.env.DOUBAO_API_KEY = 'my-key';
+
+      const mockResponse = {
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+        text: () => Promise.resolve('Params headers.authorization invalid'),
+      };
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockResponse);
+
+      const err = await request('/v1/test', {}).catch((e) => e);
+      expect(err.code).toBe('DOUBAO_SESSION_EXPIRED');
+    });
   });
 
   describe('constants', () => {
     it('should export correct default models', () => {
       expect(DEFAULT_CHAT_MODEL).toBe('doubao');
       expect(DEFAULT_IMAGE_MODEL).toBe('Seedream 4.0');
+    });
+
+    it('should export SESSION_EXPIRED_HINT with update instructions', () => {
+      expect(SESSION_EXPIRED_HINT).toContain('sessionId');
+      expect(SESSION_EXPIRED_HINT).toContain('DOUBAO_API_KEY');
+      expect(SESSION_EXPIRED_HINT).toContain('~/.zshrc');
     });
   });
 });

@@ -3,6 +3,7 @@
 import { chat } from './chat.js';
 import { generateImage } from './image.js';
 import { checkToken } from './token.js';
+import { SESSION_EXPIRED_HINT } from './client.js';
 
 const USAGE = `call-doubao - Doubao AI multi-capability tool
 
@@ -64,8 +65,16 @@ async function main() {
       console.error('chat: missing <text> argument');
       process.exit(1);
     }
-    const result = await chat(text, { model: args.model, image: args.image });
-    console.log(result);
+    try {
+      const result = await chat(text, { model: args.model, image: args.image });
+      console.log(result);
+    } catch (err) {
+      if (err.code === 'DOUBAO_SESSION_EXPIRED') {
+        console.error('chat:', err.message);
+        console.error('\n' + SESSION_EXPIRED_HINT);
+      } else throw err;
+      process.exit(1);
+    }
     return;
   }
 
@@ -75,13 +84,21 @@ async function main() {
       console.error('image: missing <prompt> argument');
       process.exit(1);
     }
-    const result = await generateImage(prompt, {
-      model: args.model,
-      ratio: args.ratio,
-      style: args.style,
-      image: args.image,
-    });
-    console.log(JSON.stringify(result, null, 2));
+    try {
+      const result = await generateImage(prompt, {
+        model: args.model,
+        ratio: args.ratio,
+        style: args.style,
+        image: args.image,
+      });
+      console.log(JSON.stringify(result, null, 2));
+    } catch (err) {
+      if (err.code === 'DOUBAO_SESSION_EXPIRED') {
+        console.error('image:', err.message);
+        console.error('\n' + SESSION_EXPIRED_HINT);
+      } else throw err;
+      process.exit(1);
+    }
     return;
   }
 
@@ -91,8 +108,19 @@ async function main() {
       console.error('token-check: missing <token> argument');
       process.exit(1);
     }
-    const result = await checkToken(token);
-    console.log(JSON.stringify(result, null, 2));
+    try {
+      const result = await checkToken(token);
+      console.log(JSON.stringify(result, null, 2));
+      if (result && result.live === false) {
+        console.error('\n' + SESSION_EXPIRED_HINT);
+      }
+    } catch (err) {
+      if (err.code === 'DOUBAO_SESSION_EXPIRED') {
+        console.error('token-check:', err.message);
+        console.error('\n' + SESSION_EXPIRED_HINT);
+      } else throw err;
+      process.exit(1);
+    }
     return;
   }
 
