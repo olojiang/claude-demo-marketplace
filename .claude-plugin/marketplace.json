@@ -52,6 +52,11 @@
       "description": "Web search powered by Google Gemini grounding with Google Search"
     },
     {
+      "name": "minimax-skill",
+      "source": "./plugins/minimax-skill",
+      "description": "MiniMax Coding Plan API: web search and image understanding (MINIMAX_TOKEN required)"
+    },
+    {
       "name": "call-doubao",
       "source": "./plugins/call-doubao",
       "description": "Doubao AI: text chat, vision chat, text-to-image, image-to-image, and token check"
