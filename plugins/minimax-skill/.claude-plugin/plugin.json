@@ -1,0 +1,9 @@
+{
+  "name": "minimax-skill",
+  "version": "1.0.0",
+  "description": "MiniMax coding_plan search and image understanding skill",
+  "author": {
+    "name": "Olojiang",
+    "email": "olojiang@example.com"
+  }
+}
