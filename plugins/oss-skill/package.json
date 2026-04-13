@@ -6,6 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsup",
+    "build:skill": "npm run build && mkdir -p skills/oss-skill/scripts && cp dist/*.js skills/oss-skill/scripts/",
     "dev": "tsup --watch",
     "test": "vitest run"
   },

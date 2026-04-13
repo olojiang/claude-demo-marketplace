@@ -51,7 +51,7 @@ A cron-based task scheduler that runs as a PM2 daemon with an MCP interface. Cla
 Run the setup script once after installation:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/setup.sh
+bash ./scripts/setup.sh
 ```
 
 This installs runtime dependencies and starts the PM2 daemon. Requires Node.js and PM2 (`npm install -g pm2`).
@@ -137,7 +137,7 @@ Use the create_task MCP tool with:
 ## Daemon Management
 
 ```bash
-pm2 start ${CLAUDE_PLUGIN_ROOT}/dist/daemon.js --name pinefield-scheduler
+pm2 start ./scripts/daemon.js --name pinefield-scheduler
 pm2 stop pinefield-scheduler
 pm2 restart pinefield-scheduler
 pm2 logs pinefield-scheduler

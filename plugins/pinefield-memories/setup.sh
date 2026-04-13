@@ -5,6 +5,7 @@
 set -e
 
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
+SKILL_SCRIPT_DIR="$PLUGIN_DIR/skills/memory-skill/scripts"
 
 echo "Setting up pinefield-memories..."
 
@@ -28,12 +29,18 @@ fi
 echo "Creating memory storage directory..."
 mkdir -p "${HOME}/.pinefield/memories"
 
+echo "Syncing skill scripts..."
+mkdir -p "$SKILL_SCRIPT_DIR"
+find "$SKILL_SCRIPT_DIR" -maxdepth 1 -type f -name '*.js' -delete
+cp "$PLUGIN_DIR"/dist/*.js "$SKILL_SCRIPT_DIR"/
+chmod +x "$SKILL_SCRIPT_DIR/cli.js"
+
 echo "Making hook scripts executable..."
 chmod +x "$PLUGIN_DIR/hooks/"*.sh
 
 echo ""
 echo "Setup complete!"
-echo "  CLI location: $PLUGIN_DIR/dist/cli.js"
+echo "  CLI location: $SKILL_SCRIPT_DIR/cli.js"
 echo ""
 echo "Quick test:"
-echo "  node $PLUGIN_DIR/dist/cli.js list"
+echo "  node $SKILL_SCRIPT_DIR/cli.js list"

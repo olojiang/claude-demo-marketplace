@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "build:skill": "npm run build && mkdir -p skills/kv-skill/scripts && cp dist/*.js skills/kv-skill/scripts/",
     "dev": "tsup --watch",
     "test": "vitest run"
   },

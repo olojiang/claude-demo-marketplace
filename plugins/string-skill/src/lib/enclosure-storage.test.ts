@@ -3,10 +3,10 @@ import { EnclosureStorage } from './enclosure-storage.js';
 import type { Enclosure } from './types.js';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 
 describe('EnclosureStorage', () => {
-    const testConfigDir = join(homedir(), '.string-skill-test-enclosure-storage');
+    const testConfigDir = join(tmpdir(), '.string-skill-test-enclosure-storage');
     const testEnclosuresFile = join(testConfigDir, 'enclosures.json');
 
     beforeEach(() => {

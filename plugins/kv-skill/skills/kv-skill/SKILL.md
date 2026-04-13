@@ -26,44 +26,44 @@ export KV_URL="redis://localhost:6379"
 
 ## CLI 用法
 
-通过 `${CLAUDE_PLUGIN_ROOT}/src/cli.ts` 调用（需 tsx 或构建后使用 dist）。
+通过 `node ./scripts/cli.js` 调用（编译产物已内置在 skill）。
 
 ### 字符串操作
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts set <key> <value> [-e <seconds>]
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts get <key>
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts del <key>
+node ./scripts/cli.js set <key> <value> [-e <seconds>]
+node ./scripts/cli.js get <key>
+node ./scripts/cli.js del <key>
 ```
 
 ### 数字操作
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts incr <key>
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts decr <key>
+node ./scripts/cli.js incr <key>
+node ./scripts/cli.js decr <key>
 ```
 
 ### 列表操作
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts list-push <key> <values...> [-l]
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts list-pop <key> [-l]
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts list-get <key> [-s <start>] [-e <end>]
+node ./scripts/cli.js list-push <key> <values...> [-l]
+node ./scripts/cli.js list-pop <key> [-l]
+node ./scripts/cli.js list-get <key> [-s <start>] [-e <end>]
 ```
 
 ### JSON 操作
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts json-set <key> '<json>' [-e <seconds>]
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts json-get <key>
+node ./scripts/cli.js json-set <key> '<json>' [-e <seconds>]
+node ./scripts/cli.js json-get <key>
 ```
 
 <example>
 用户: 帮我在 Redis 里存一个配置项 app-config
-助手: 执行 `npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts json-set app-config '{"theme":"dark","lang":"zh"}'`
+助手: 执行 `node ./scripts/cli.js json-set app-config '{"theme":"dark","lang":"zh"}'`
 </example>
 
 <example>
 用户: 读取 Redis 中 counter 的值并自增
-助手: 先 `npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts get counter`，再 `npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts incr counter`
+助手: 先 `node ./scripts/cli.js get counter`，再 `node ./scripts/cli.js incr counter`
 </example>

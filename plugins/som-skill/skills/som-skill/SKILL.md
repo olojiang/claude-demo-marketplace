@@ -15,13 +15,13 @@ description: Spatial Object Model (SOM) skill for spatial intelligence applicati
 
 #### OpenAPI 接口文档
 
-- **所有 API 文档**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/`
-- **API 总览**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/SKILL.md` ⭐
+- **所有 API 文档**: `./openapi-skills/`
+- **API 总览**: `./openapi-skills/SKILL.md` ⭐
 - **快速查找表**: 见下方"API 快速查找指南"部分
 
 #### 空间内人员检测 API
 
-- **API 参考文档**: `${CLAUDE_PLUGIN_ROOT}/docs/openapi/person-detector.md`
+- **API 参考文档**: `./docs/openapi/person-detector.md`
 
 ### 常用操作
 
@@ -39,20 +39,20 @@ description: Spatial Object Model (SOM) skill for spatial intelligence applicati
 - **Authorization**: `Authorization: Bearer $PF_SESSION_TOKEN` (必须包含，从环境变量读取)
 - **Token 环境变量**: `PF_SESSION_TOKEN`
 - **encId / enclosureId 默认值**: 当用户未直接指定空间 ID 时，从项目根目录 `.claude/env.json` 的 `encId` 字段读取
-- **映射关系**: `${CLAUDE_PLUGIN_ROOT}/docs/mapping/` 目录
+- **映射关系**: `./docs/mapping/` 目录
 
 ## API 快速查找指南
 
 ### 📍 API 文档位置
 
-**OpenAPI 接口文档**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/`  
-**空间内人员检测 API**: `${CLAUDE_PLUGIN_ROOT}/docs/openapi/person-detector.md`
+**OpenAPI 接口文档**: `./openapi-skills/`  
+**空间内人员检测 API**: `./docs/openapi/person-detector.md`
 
 ### 🔍 按功能分类查找
 
 #### 1. 实体管理 (Entity) - 23个接口
 
-**目录**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/entity/`
+**目录**: `./openapi-skills/entity/`
 
 | 功能           | API 路径                               | 文档文件                      | 使用场景                             |
 | -------------- | -------------------------------------- | ----------------------------- | ------------------------------------ |
@@ -87,7 +87,7 @@ description: Spatial Object Model (SOM) skill for spatial intelligence applicati
 
 #### 2. 空间管理 (Enclosure) - 5个接口
 
-**目录**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/enclosure/`
+**目录**: `./openapi-skills/enclosure/`
 
 | 功能     | API 路径                      | 文档文件              | 使用场景                             |
 | -------- | ----------------------------- | --------------------- | ------------------------------------ |
@@ -99,7 +99,7 @@ description: Spatial Object Model (SOM) skill for spatial intelligence applicati
 
 #### 3. 分类管理 (Class) - 3个接口
 
-**目录**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/classes/`
+**目录**: `./openapi-skills/classes/`
 
 | 功能     | API 路径                   | 文档文件          | 使用场景                             |
 | -------- | -------------------------- | ----------------- | ------------------------------------ |
@@ -109,7 +109,7 @@ description: Spatial Object Model (SOM) skill for spatial intelligence applicati
 
 #### 4. 键值存储 (KV) - 3个接口
 
-**目录**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/kv/`
+**目录**: `./openapi-skills/kv/`
 
 | 功能       | API 路径           | 文档文件        | 使用场景               |
 | ---------- | ------------------ | --------------- | ---------------------- |
@@ -145,28 +145,24 @@ description: Spatial Object Model (SOM) skill for spatial intelligence applicati
 
 #### OpenAPI 文档
 
-- **API 总览**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/SKILL.md` ⭐
-- **数据模型说明**: `${CLAUDE_PLUGIN_ROOT}/openapi-skills/SKILL.md` (数据模型与关系部分)
+- **API 总览**: `./openapi-skills/SKILL.md` ⭐
+- **数据模型说明**: `./openapi-skills/SKILL.md` (数据模型与关系部分)
 
 #### 人员检测文档
 
-- **API 参考**: `${CLAUDE_PLUGIN_ROOT}/docs/openapi/person-detector.md`
+- **API 参考**: `./docs/openapi/person-detector.md`
 
 #### 通用配置
 
 - **Base URL 配置**: 见下方"Base URL 使用规范"部分
 
-## 插件结构
+## Skill 目录结构
 
 ```
-plugins/som-skill/
-├── .claude-plugin/
-│   └── plugin.json
-├── skills/
-│   └── som-skill/
-│       └── SKILL.md         # 本文件
-├── openapi-skills/          # OpenAPI 接口文档 ⭐
-│   ├── SKILL.md             # API 总览（必读）
+som-skill/
+├── SKILL.md                  # 本文件
+├── openapi-skills/           # OpenAPI 接口文档 ⭐
+│   ├── SKILL.md              # API 总览（必读）
 │   ├── entity/               # Entity 管理接口（23个）
 │   ├── enclosure/            # Enclosure 管理接口（5个）
 │   ├── classes/              # Class 管理接口（3个）
@@ -216,15 +212,15 @@ plugins/som-skill/
 
 > **⚠️ 重要**: 查找映射关系时，**必须且仅使用 READ 工具**（`read_file`）直接读取映射文件。
 >
-> - ✅ **正确**: 使用 `READ("${CLAUDE_PLUGIN_ROOT}/docs/mapping/space_enclosure_mapping.md")` 或 `READ("${CLAUDE_PLUGIN_ROOT}/docs/mapping/name_class_mapping.md")`
+> - ✅ **正确**: 使用 `READ("./docs/mapping/space_enclosure_mapping.md")` 或 `READ("./docs/mapping/name_class_mapping.md")`
 > - ❌ **错误**: 使用 `codebase_search`、`MAX` 等其他工具函数
 >
 > **原因**: 这些映射文件已优化为紧凑格式，占用最小上下文空间。直接使用 `read_file` 读取即可在返回内容中高效搜索，无需其他工具。
 
 #### 空间映射查找
 
-当用户咨询空间相关问题时，**使用 READ 工具**读取 `${CLAUDE_PLUGIN_ROOT}/docs/mapping/space_enclosure_mapping.md` 查找空间名称与 enclosureId 的映射关系。
+当用户咨询空间相关问题时，**使用 READ 工具**读取 `./docs/mapping/space_enclosure_mapping.md` 查找空间名称与 enclosureId 的映射关系。
 
 #### Class 名称映射查找
 
-当用户咨询 Class 相关问题时，**使用 READ 工具**读取 `${CLAUDE_PLUGIN_ROOT}/docs/mapping/name_class_mapping.md` 查找 Class 中文名与 class.name 的映射关系。
+当用户咨询 Class 相关问题时，**使用 READ 工具**读取 `./docs/mapping/name_class_mapping.md` 查找 Class 中文名与 class.name 的映射关系。

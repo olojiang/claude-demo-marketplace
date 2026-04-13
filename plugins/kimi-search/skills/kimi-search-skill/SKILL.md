@@ -21,7 +21,7 @@ description: >
 通过 CLI 工具执行搜索：
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/src/cli.js search "<搜索问题>"
+./scripts/cli.js search "<搜索问题>"
 ```
 
 ### 参数
@@ -46,7 +46,7 @@ assistant:
 <example>
 user: "2024年诺贝尔物理学奖得主是谁?"
 assistant:
-  1. 调用 `${CLAUDE_PLUGIN_ROOT}/src/cli.js search "2024年诺贝尔物理学奖得主是谁?"`
+  1. 调用 `./scripts/cli.js search "2024年诺贝尔物理学奖得主是谁?"`
   2. 获取 Kimi 联网搜索结果
   3. 向用户呈现答案
 </example>
@@ -54,7 +54,7 @@ assistant:
 <example>
 user: "搜索一下最新的 React 19 有什么新特性"
 assistant:
-  1. 调用 `${CLAUDE_PLUGIN_ROOT}/src/cli.js search "React 19 新特性"`
+  1. 调用 `./scripts/cli.js search "React 19 新特性"`
   2. 整理搜索结果，向用户呈现
 </example>
 

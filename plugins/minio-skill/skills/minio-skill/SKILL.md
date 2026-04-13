@@ -29,44 +29,44 @@ export MINIO_USE_SSL="true"
 
 ## CLI 用法
 
-通过 `${CLAUDE_PLUGIN_ROOT}/src/cli.ts` 调用（需 tsx 或构建后使用 dist）。
+通过 `node ./scripts/cli.js` 调用（编译产物已内置在 skill）。
 
 ### 列出 Buckets
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts list
+node ./scripts/cli.js list
 ```
 
 ### 列出 Objects
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts list <bucket> [prefix] [-r]
+node ./scripts/cli.js list <bucket> [prefix] [-r]
 ```
 
 ### 上传文件
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts upload <bucket> <objectName> <localFilePath>
+node ./scripts/cli.js upload <bucket> <objectName> <localFilePath>
 ```
 
 ### 下载文件
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts download <bucket> <objectName> <localFilePath>
+node ./scripts/cli.js download <bucket> <objectName> <localFilePath>
 ```
 
 ### 删除对象
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts delete <bucket> <objectName>
+node ./scripts/cli.js delete <bucket> <objectName>
 ```
 
 <example>
 用户: 帮我上传 logo.png 到 MinIO 的 my-bucket
-助手: 执行 `npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts upload my-bucket logo.png ./logo.png`
+助手: 执行 `node ./scripts/cli.js upload my-bucket logo.png ./logo.png`
 </example>
 
 <example>
 用户: 列出 test-bucket 中 images/ 下的所有文件
-助手: 执行 `npx tsx ${CLAUDE_PLUGIN_ROOT}/src/cli.ts list test-bucket images/ -r`
+助手: 执行 `node ./scripts/cli.js list test-bucket images/ -r`
 </example>

@@ -35,38 +35,38 @@ description: |
 This skill provides persistent memory capabilities for the agent.
 It allows you to store important facts, retrieve them later by ID or search query, delete outdated memories, and archive entire conversation sessions.
 
-The CLI is bundled at `${CLAUDE_PLUGIN_ROOT}/dist/cli.js` (no build step required).
+The CLI is bundled at `./scripts/cli.js` (no build step required).
 
 ## Usage
 
 ### 1. Save a Memory
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js save --content "The user prefers dark mode" --tags "preference,ui"
+node ./scripts/cli.js save --content "The user prefers dark mode" --tags "preference,ui"
 ```
 
 ### 2. Retrieve a Memory by ID
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js get --id <memory-id>
+node ./scripts/cli.js get --id <memory-id>
 ```
 
 ### 3. Search Memories
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js search --query "dark mode"
+node ./scripts/cli.js search --query "dark mode"
 ```
 
 ### 4. List All Memories
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js list
+node ./scripts/cli.js list
 ```
 
 ### 5. Delete a Memory
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js delete --id <memory-id>
+node ./scripts/cli.js delete --id <memory-id>
 ```
 
 Supports both full UUID and short ID prefix (e.g. first 6-8 characters).
@@ -81,7 +81,7 @@ There is no direct `update` command. To edit a memory:
 ### 7. Archive Sessions
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js archive
+node ./scripts/cli.js archive
 ```
 
 Note: Archive requires `claude` CLI to be installed and authenticated.

@@ -24,7 +24,7 @@ description: |
 
 股票关注列表 CRUD、实时报价、新闻与走势分析。美股用 Finnhub（免费版：quote + 新闻），A 股/港股用 akshare（含历史 K 线）。
 
-CLI 路径：`${CLAUDE_PLUGIN_ROOT}/src/cli.js`
+CLI 路径：`./scripts/cli.js`
 
 ## 前置条件
 
@@ -40,33 +40,33 @@ CLI 路径：`${CLAUDE_PLUGIN_ROOT}/src/cli.js`
 ### 初始化默认自选股
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js init
+node ./scripts/cli.js init
 ```
 
 ### 关注列表 CRUD
 
 ```bash
 # 列出
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js follows list
+node ./scripts/cli.js follows list
 
 # 添加（stock: 美股 | 港股 | A 股）
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js follows add --name "AMD" --code AMD --stock 美股
+node ./scripts/cli.js follows add --name "AMD" --code AMD --stock 美股
 
 # 删除
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js follows remove --code AMD
+node ./scripts/cli.js follows remove --code AMD
 
 # 更新
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js follows update --code AMD --name "超微半导体"
+node ./scripts/cli.js follows update --code AMD --name "超微半导体"
 ```
 
 ### 行情与历史
 
 ```bash
 # 查询所有关注股的报价与历史（默认近 1 月）
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js quote
+node ./scripts/cli.js quote
 
 # 指定股票 + 时间区间
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js quote --code AMD --period 1y
+node ./scripts/cli.js quote --code AMD --period 1y
 ```
 
 **period 取值**：`today` | `1w` | `1m` | `3m` | `6m` | `1y`

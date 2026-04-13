@@ -4,10 +4,14 @@ import {
   getAppIdFromManifest,
   findAppDir,
   flattenFiles,
+  normalizeSubPath,
+  buildUploadDir,
+  buildResourcePath,
   uploadResource,
   listResources,
   MANIFEST_PATH,
-} from '../src/pf-resources.js'
+  DEFAULT_APP_ID,
+} from '../skills/pf-resources-skill/scripts/pf-resources.js'
 import { existsSync, readFileSync } from 'node:fs'
 
 vi.mock('node:fs', async (importOriginal) => {
@@ -49,9 +53,13 @@ describe('pf-resources', () => {
       expect(MANIFEST_PATH).toBe('src/manifest.json')
     })
 
-    it('文件不存在时应返回 null', () => {
+    it('DEFAULT_APP_ID 应为 pinefield.assets', () => {
+      expect(DEFAULT_APP_ID).toBe('pinefield.assets')
+    })
+
+    it('文件不存在时应回退默认 appId', () => {
       vi.mocked(existsSync).mockReturnValueOnce(false)
-      expect(getAppIdFromManifest('/project')).toBeNull()
+      expect(getAppIdFromManifest('/project')).toBe(DEFAULT_APP_ID)
     })
 
     it('存在且 id 有效时应返回 id 字符串', () => {
@@ -68,27 +76,27 @@ describe('pf-resources', () => {
       expect(getAppIdFromManifest('/project')).toBe('pinefield.my-app')
     })
 
-    it('无 id 字段时应返回 null', () => {
+    it('无 id 字段时应回退默认 appId', () => {
       vi.mocked(existsSync).mockReturnValueOnce(true)
       vi.mocked(readFileSync).mockReturnValueOnce(JSON.stringify({ type: '3rd' }))
-      expect(getAppIdFromManifest('/project')).toBeNull()
+      expect(getAppIdFromManifest('/project')).toBe(DEFAULT_APP_ID)
     })
 
-    it('id 为空字符串时应返回 null', () => {
+    it('id 为空字符串时应回退默认 appId', () => {
       vi.mocked(existsSync).mockReturnValueOnce(true)
       vi.mocked(readFileSync).mockReturnValueOnce(JSON.stringify({ id: '' }))
-      expect(getAppIdFromManifest('/project')).toBeNull()
+      expect(getAppIdFromManifest('/project')).toBe(DEFAULT_APP_ID)
     })
 
-    it('JSON 解析失败时应返回 null', () => {
+    it('JSON 解析失败时应回退默认 appId', () => {
       vi.mocked(existsSync).mockReturnValueOnce(true)
       vi.mocked(readFileSync).mockReturnValueOnce('not json')
-      expect(getAppIdFromManifest('/project')).toBeNull()
+      expect(getAppIdFromManifest('/project')).toBe(DEFAULT_APP_ID)
     })
 
-    it('不传 projectRoot 时也能正常执行（文件不存在则返回 null）', () => {
+    it('不传 projectRoot 时也能正常执行（文件不存在则回退默认值）', () => {
       vi.mocked(existsSync).mockReturnValueOnce(false)
-      expect(getAppIdFromManifest()).toBeNull()
+      expect(getAppIdFromManifest()).toBe(DEFAULT_APP_ID)
     })
   })
 
@@ -237,6 +245,39 @@ describe('pf-resources', () => {
     })
   })
 
+  describe('normalizeSubPath', () => {
+    it('空值应得到空字符串', () => {
+      expect(normalizeSubPath()).toBe('')
+      expect(normalizeSubPath(null)).toBe('')
+      expect(normalizeSubPath('')).toBe('')
+      expect(normalizeSubPath('   ')).toBe('')
+    })
+
+    it('应去掉首尾斜杠并合并重复斜杠', () => {
+      expect(normalizeSubPath('/a/b/')).toBe('a/b')
+      expect(normalizeSubPath('a//b')).toBe('a/b')
+    })
+
+    it('含 .. 或 . 段时应抛出', () => {
+      expect(() => normalizeSubPath('a/../b')).toThrow('subPath')
+      expect(() => normalizeSubPath('a/./b')).toThrow('subPath')
+    })
+  })
+
+  describe('buildUploadDir / buildResourcePath', () => {
+    it('无子目录时应与原先路径一致', () => {
+      expect(buildUploadDir('myapp', '')).toBe('/apps/myapp')
+      expect(buildResourcePath('myapp', 'x.png', '')).toBe('apps/myapp/x.png')
+    })
+
+    it('有子目录时应拼接', () => {
+      expect(buildUploadDir('myapp', 'icons/hd')).toBe('/apps/myapp/icons/hd')
+      expect(buildResourcePath('myapp', 'x.png', 'icons/hd')).toBe(
+        'apps/myapp/icons/hd/x.png',
+      )
+    })
+  })
+
   describe('uploadResource', () => {
     it('应上传文件并通过 detail API 返回 URL', async () => {
       process.env.PF_SESSION_TOKEN = 'test-token'
@@ -296,6 +337,36 @@ describe('pf-resources', () => {
       expect(detailUrl).toContain('/detail')
       expect(detailUrl).toContain(encodeURIComponent('apps/testapp/img.png'))
       expect(detailOpts.headers.authorization).toBe('Bearer my-token-abc')
+    })
+
+    it('传入 subPath 时 dir 与 detail path 应包含子目录', async () => {
+      process.env.PF_SESSION_TOKEN = 'tok'
+
+      const mockFetch = vi.fn()
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ success: true }),
+      })
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            name: 'a.png',
+            path: 'apps/testapp/release/a.png',
+            url: 'https://assets.pinefield.cn/apps/testapp/release/a.png',
+          }),
+      })
+      vi.stubGlobal('fetch', mockFetch)
+
+      await uploadResource('testapp', '/x/a.png', 'release')
+
+      const [, uploadOpts] = mockFetch.mock.calls[0]
+      expect(uploadOpts.body.get('dir')).toBe('/apps/testapp/release')
+
+      const [detailUrl] = mockFetch.mock.calls[1]
+      expect(detailUrl).toContain(
+        encodeURIComponent('apps/testapp/release/a.png'),
+      )
     })
 
     it('上传失败时应抛出错误', async () => {
@@ -385,6 +456,90 @@ describe('pf-resources', () => {
       expect(result[0].name).toBe('file1.png')
       expect(result[0].url).toBe('https://assets.pinefield.cn/apps/myapp/file1.png')
       expect(result[1].name).toBe('file2.jpg')
+    })
+
+    it('传入 subPath 时只返回该子树下的文件', async () => {
+      process.env.PF_SESSION_TOKEN = 'test-token'
+
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            tree: [
+              {
+                name: 'apps',
+                path: 'apps/',
+                type: 'directory',
+                children: [
+                  {
+                    name: 'myapp',
+                    path: 'apps/myapp/',
+                    type: 'directory',
+                    children: [
+                      {
+                        name: 'root.png',
+                        path: 'apps/myapp/root.png',
+                        type: 'file',
+                        size: 100,
+                        lastModified: '2026-01-01T00:00:00.000Z',
+                        url: 'https://assets.pinefield.cn/apps/myapp/root.png',
+                      },
+                      {
+                        name: 'images',
+                        path: 'apps/myapp/images/',
+                        type: 'directory',
+                        children: [
+                          {
+                            name: 'nested.png',
+                            path: 'apps/myapp/images/nested.png',
+                            type: 'file',
+                            size: 50,
+                            lastModified: '2026-01-02T00:00:00.000Z',
+                            url: 'https://assets.pinefield.cn/apps/myapp/images/nested.png',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          }),
+      })
+      vi.stubGlobal('fetch', mockFetch)
+
+      const result = await listResources('myapp', 'images')
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('nested.png')
+    })
+
+    it('subPath 指向不存在的目录时应返回空数组', async () => {
+      process.env.PF_SESSION_TOKEN = 'test-token'
+
+      const mockFetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            tree: [
+              {
+                name: 'apps',
+                path: 'apps/',
+                type: 'directory',
+                children: [
+                  {
+                    name: 'myapp',
+                    path: 'apps/myapp/',
+                    type: 'directory',
+                    children: [],
+                  },
+                ],
+              },
+            ],
+          }),
+      })
+      vi.stubGlobal('fetch', mockFetch)
+
+      expect(await listResources('myapp', 'missing')).toEqual([])
     })
 
     it('应展平嵌套子目录中的文件', async () => {

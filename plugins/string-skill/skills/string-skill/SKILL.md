@@ -22,7 +22,7 @@ description: 字符串模版管理工具，支持 {variable} 变量替换、{enc
 
 ## CLI 用法
 
-通过 `${CLAUDE_PLUGIN_ROOT}/src/cli.ts` 或构建后 `string-skill` 调用。
+通过 `node ./scripts/cli.js` 调用。
 
 ### 添加模版（可选 tags）
 

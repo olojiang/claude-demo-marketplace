@@ -4,10 +4,10 @@ import { EnclosureManager } from './enclosure-manager.js';
 import type { StringTemplate } from './types.js';
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 
 describe('TemplateManager', () => {
-    const testConfigDir = join(homedir(), '.string-skill-test-manager');
+    const testConfigDir = join(tmpdir(), '.string-skill-test-manager');
     let manager: TemplateManager;
 
     beforeEach(() => {

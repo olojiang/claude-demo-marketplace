@@ -3,10 +3,10 @@ import { Storage } from './storage.js';
 import type { StringTemplate } from './types.js';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 
 describe('Storage', () => {
-    const testConfigDir = join(homedir(), '.string-skill-test-storage');
+    const testConfigDir = join(tmpdir(), '.string-skill-test-storage');
     const testConfigFile = join(testConfigDir, 'templates.json');
 
     beforeEach(() => {

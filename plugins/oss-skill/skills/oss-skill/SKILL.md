@@ -29,51 +29,51 @@ export ALLOWED_BUCKETS="bucket1,bucket2"
 
 ## CLI 用法
 
-通过 `${CLAUDE_PLUGIN_ROOT}/src/index.ts` 调用（需 tsx 或构建后使用 dist）。
+通过 `node ./scripts/index.js` 调用（编译产物已内置在 skill）。
 
 ### 列出 Buckets
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/index.ts list-buckets
+node ./scripts/index.js list-buckets
 ```
 
 ### 上传文件
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/index.ts upload <bucket> <localPath> <remotePath>
+node ./scripts/index.js upload <bucket> <localPath> <remotePath>
 ```
 
 ### 下载文件
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/index.ts download <bucket> <remotePath> [localPath]
+node ./scripts/index.js download <bucket> <remotePath> [localPath]
 ```
 
 ### 列出文件
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/index.ts list-objects <bucket> [-p prefix] [-m maxKeys]
+node ./scripts/index.js list-objects <bucket> [-p prefix] [-m maxKeys]
 ```
 
 ### 删除文件
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/index.ts delete <bucket> <remotePath>
+node ./scripts/index.js delete <bucket> <remotePath>
 ```
 
 ### 重命名文件
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/index.ts rename <bucket> <oldPath> <newPath>
+node ./scripts/index.js rename <bucket> <oldPath> <newPath>
 ```
 
 ### 生成签名 URL
 
 ```bash
-npx tsx ${CLAUDE_PLUGIN_ROOT}/src/index.ts sign-url <bucket> <remotePath> [-e seconds]
+node ./scripts/index.js sign-url <bucket> <remotePath> [-e seconds]
 ```
 
 <example>
 用户: 帮我上传 logo.png 到 pf-test-public-web
-助手: 执行 `npx tsx ${CLAUDE_PLUGIN_ROOT}/src/index.ts upload pf-test-public-web ./logo.png images/logo.png`
+助手: 执行 `node ./scripts/index.js upload pf-test-public-web ./logo.png images/logo.png`
 </example>

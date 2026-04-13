@@ -24,7 +24,7 @@ description: |
 
 基于 Microsoft Edge TTS 的文本转语音，输出 MP3。默认中文女声 Xiaoxiao（晓晓），可切换其他语音。
 
-CLI 路径：`${CLAUDE_PLUGIN_ROOT}/src/cli.js`
+CLI 路径：`./scripts/cli.js`
 
 ## 前置条件
 
@@ -37,28 +37,28 @@ CLI 路径：`${CLAUDE_PLUGIN_ROOT}/src/cli.js`
 
 ```bash
 # 简写：直接传文本
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js "你好世界"
+node ./scripts/cli.js "你好世界"
 
 # 完整命令
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js synthesize --text "你好世界"
+node ./scripts/cli.js synthesize --text "你好世界"
 
 # 指定输出路径
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js "你好世界" --out /tmp/hello.mp3
+node ./scripts/cli.js "你好世界" --out /tmp/hello.mp3
 
 # 指定语音（默认 zh-CN-XiaoxiaoNeural）
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js "你好" --voice zh-CN-XiaoyiNeural
+node ./scripts/cli.js "你好" --voice zh-CN-XiaoyiNeural
 ```
 
 ### 列出支持的语音（voices / love）
 
 ```bash
 # 列出全部
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js voices
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js love
+node ./scripts/cli.js voices
+node ./scripts/cli.js love
 
 # 按语言/名称过滤
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js voices --filter zh-CN
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js voices -f Xiaoxiao
+node ./scripts/cli.js voices --filter zh-CN
+node ./scripts/cli.js voices -f Xiaoxiao
 ```
 
 返回 JSON 含：`ShortName`（语音 ID，用于 --voice）、`Locale`、`Gender`、`FriendlyName`。

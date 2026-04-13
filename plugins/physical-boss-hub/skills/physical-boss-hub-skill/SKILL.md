@@ -33,7 +33,7 @@ description: |
 
 消息中枢：设备/人员注册 + Channel 委派通信。每个注册的 person/device 拥有独立的 PM2 worker 进程，能自主接收消息并回复。
 
-CLI 路径：`${CLAUDE_PLUGIN_ROOT}/src/cli.js`
+CLI 路径：`./scripts/cli.js`
 
 ---
 
@@ -51,8 +51,8 @@ CLI 路径：`${CLAUDE_PLUGIN_ROOT}/src/cli.js`
 ### 步骤 2：查找匹配的实体
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js person list
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js device list
+node ./scripts/cli.js person list
+node ./scripts/cli.js device list
 ```
 
 分析每个实体的 `description`、`tags`、`actions`，找到最适合执行此任务的实体。
@@ -62,7 +62,7 @@ node ${CLAUDE_PLUGIN_ROOT}/src/cli.js device list
 通过 hub channel 向目标实体发送消息。使用 `agent-main` 作为 agent 的固定 ID。
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message publish \
+node ./scripts/cli.js message publish \
   --channel hub \
   --from agent-main --from-role agent \
   --to <entity-id> --to-role <person|device> \
@@ -76,7 +76,7 @@ node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message publish \
 使用 `wait-reply` 阻塞等待（默认 60 秒超时）：
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message wait-reply \
+node ./scripts/cli.js message wait-reply \
   --channel hub \
   --message-id <上一步返回的 msg id> \
   --timeout 60
@@ -99,7 +99,7 @@ node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message wait-reply \
 ### 注册 Person（自动启动 worker + 订阅 hub channel）
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js person register \
+node ./scripts/cli.js person register \
   --name "韩啸" \
   --description "空间智能机项目负责人，擅长撰写技术日报和项目进展报告" \
   --tags "空间智能机,项目管理,技术报告" \
@@ -109,7 +109,7 @@ node ${CLAUDE_PLUGIN_ROOT}/src/cli.js person register \
 ### 注册 Device（自动启动 worker + 订阅 hub channel）
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js device register \
+node ./scripts/cli.js device register \
   --name "server-monitor" \
   --description "服务器监控设备，实时采集 CPU、内存、磁盘数据" \
   --tags "监控,服务器,性能" \
@@ -119,40 +119,40 @@ node ${CLAUDE_PLUGIN_ROOT}/src/cli.js device register \
 ### 查看 / 删除（删除时自动停止 worker）
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js person list
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js device list
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js person remove --id <id>
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js device remove --id <id>
+node ./scripts/cli.js person list
+node ./scripts/cli.js device list
+node ./scripts/cli.js person remove --id <id>
+node ./scripts/cli.js device remove --id <id>
 ```
 
 ## Worker 管理
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js worker status
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js worker start --id <entity-id>
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js worker stop --id <entity-id>
+node ./scripts/cli.js worker status
+node ./scripts/cli.js worker start --id <entity-id>
+node ./scripts/cli.js worker stop --id <entity-id>
 ```
 
 ## Channel 管理
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js channel create --name <n> [--type memory]
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js channel list
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js channel subscribe --channel <n> --subscriber <id> --role <role>
+node ./scripts/cli.js channel create --name <n> [--type memory]
+node ./scripts/cli.js channel list
+node ./scripts/cli.js channel subscribe --channel <n> --subscriber <id> --role <role>
 ```
 
 ## 消息操作
 
 ```bash
 # 发布消息（广播/定向）
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message publish --channel <n> --from <id> --from-role <role> --content <msg> [--to <id>] [--to-role <role>]
+node ./scripts/cli.js message publish --channel <n> --from <id> --from-role <role> --content <msg> [--to <id>] [--to-role <role>]
 
 # 等待指定消息的回复（阻塞）
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message wait-reply --channel <n> --message-id <id> [--timeout 60]
+node ./scripts/cli.js message wait-reply --channel <n> --message-id <id> [--timeout 60]
 
 # 查看回复 / 消息列表
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message replies --channel <n> --message-id <id>
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js message list --channel <n> [--limit 20]
+node ./scripts/cli.js message replies --channel <n> --message-id <id>
+node ./scripts/cli.js message list --channel <n> [--limit 20]
 ```
 
 ## 数据目录

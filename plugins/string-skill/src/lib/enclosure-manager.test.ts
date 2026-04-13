@@ -3,10 +3,10 @@ import { EnclosureManager } from './enclosure-manager.js';
 import type { Enclosure } from './types.js';
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
+import { tmpdir } from 'node:os';
 
 describe('EnclosureManager', () => {
-    const testConfigDir = join(homedir(), '.string-skill-test-enclosure-manager');
+    const testConfigDir = join(tmpdir(), '.string-skill-test-enclosure-manager');
     let manager: EnclosureManager;
 
     beforeEach(() => {

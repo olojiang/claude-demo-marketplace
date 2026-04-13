@@ -24,7 +24,7 @@ description: |
 
 基于 Remotion 的文本转视频。输入内容与时长，输出 MP4。内容支持换行（\n）。
 
-CLI 路径：`${CLAUDE_PLUGIN_ROOT}/src/cli.js`
+CLI 路径：`./scripts/cli.js`
 
 ## 前置条件
 
@@ -38,23 +38,23 @@ CLI 路径：`${CLAUDE_PLUGIN_ROOT}/src/cli.js`
 
 ```bash
 # 直接传内容，默认 5 秒
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js "欢迎观看"
+node ./scripts/cli.js "欢迎观看"
 
 # 指定时长（秒）
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js "欢迎观看" --duration 10
+node ./scripts/cli.js "欢迎观看" --duration 10
 
 # 使用 --content
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js --content "产品介绍" -d 15
+node ./scripts/cli.js --content "产品介绍" -d 15
 ```
 
 ### 指定输出路径
 
 ```bash
 # 指定完整输出路径
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js "内容" --out /path/to/output.mp4
+node ./scripts/cli.js "内容" --out /path/to/output.mp4
 
 # 指定输出目录（自动生成 remotion_<timestamp>.mp4）
-node ${CLAUDE_PLUGIN_ROOT}/src/cli.js "内容" --dir ~/Desktop
+node ./scripts/cli.js "内容" --dir ~/Desktop
 ```
 
 ### 参数说明
